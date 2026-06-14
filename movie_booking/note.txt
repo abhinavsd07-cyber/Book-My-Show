@@ -1,0 +1,70 @@
+1)/* Card Hover */
+.movie-card {
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #101010;
+  color: white;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* Card Image – Perfect Size */
+.movie-img {
+  height: 320px;               /* improved size */
+  width: 100%;
+  object-fit: cover;           /* clean crop */
+  border-bottom: 2px solid #222;
+}
+
+/* White Text */
+.movie-card .card-title,
+.movie-card .card-text {
+  color: #ffffff !important;
+}
+
+
+2 my design)/* ========== MOVIE CARD ========== */
+
+.movie-card {
+  height: 540px;                 /* Perfect balanced height */
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #000;        /* Dark theme */
+  color: white;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+}
+
+/* ========== MOVIE POSTER IMAGE ========== */
+.movie-img {
+  height: 360px;                 /* Improved — clean size */
+  width: 100%;
+  object-fit: contain;             /* BEST for posters */
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px 10px 0 0;
+}
+
+/* ========== TEXT STYLING ========== */
+.movie-card .card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.movie-card .card-text {
+  font-size: 0.85rem;
+  color: #e0e0e0 !important;
+}
+
+/* Button spacing */
+.movie-card .btn {
+  margin-top: auto;
+}

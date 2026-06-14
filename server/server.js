@@ -1,0 +1,69 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
+const connectDB = require("./dbConfig/db");
+const route = require("./routes/route");
+const adminRoutes = require("./routes/adminRoutes");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+
+// Connect Database
+connectDB();
+
+const app = express();
+const server = http.createServer(app);
+
+// Setup Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.CLIENT_URL],
+    credentials: true
+  }
+});
+
+io.on("connection", (socket) => {
+  // console.log(`Socket connected: ${socket.id}`);
+  
+  socket.on("joinShow", (showId) => {
+    socket.join(showId);
+  });
+
+  socket.on("lockSeat", ({ showId, seatId }) => {
+    // Broadcast to others in the same show room
+    socket.to(showId).emit("seatLocked", { seatId, by: socket.id });
+  });
+
+  socket.on("unlockSeat", ({ showId, seatId }) => {
+    socket.to(showId).emit("seatUnlocked", { seatId, by: socket.id });
+  });
+
+  socket.on("disconnect", () => {
+    // console.log(`Socket disconnected: ${socket.id}`);
+  });
+});
+
+// Middleware
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.CLIENT_URL], credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health Check
+app.get("/", (req, res) => {
+  res.json({ success: true, message: "🎬 CineVault API is running..." });
+});
+
+// API Routes
+app.use("/api", route);
+app.use("/api/admin", adminRoutes);
+
+// Error Middleware
+app.use(notFound);
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

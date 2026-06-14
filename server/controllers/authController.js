@@ -1,0 +1,159 @@
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const crypto = require("crypto");
+const { sendEmail } = require("../utils/sendEmail");
+
+const generateToken = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+
+// @POST /api/auth/register
+const register = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password)
+      return res.status(400).json({ success: false, message: "All fields required" });
+
+    const exists = await User.findOne({ email });
+    if (exists)
+      return res.status(400).json({ success: false, message: "Email already registered" });
+
+    const user = await User.create({ name, email, password, phone });
+    res.status(201).json({
+      success: true,
+      message: "Registered successfully",
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        token: generateToken(user._id),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @POST /api/auth/login
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ success: false, message: "Email and password required" });
+
+    const user = await User.findOne({ email });
+    if (!user || !(await user.comparePassword(password)))
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        token: generateToken(user._id),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @GET /api/auth/profile
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    res.json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @PUT /api/auth/profile
+const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (req.body.name) user.name = req.body.name;
+    if (req.body.phone !== undefined) user.phone = req.body.phone;
+    if (req.body.avatar) user.avatar = req.body.avatar;
+    if (req.body.password) user.password = req.body.password;
+    const updated = await user.save();
+    res.json({
+      success: true,
+      data: { _id: updated._id, name: updated.name, email: updated.email, phone: updated.phone, role: updated.role, avatar: updated.avatar },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @POST /api/auth/forgotpassword
+const forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+    const message = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2>Password Reset Request</h2>
+        <p>You requested a password reset. Click the button below to reset your password. This link is valid for 10 minutes.</p>
+        <a href="${resetUrl}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;">Reset Password</a>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #777;">If you did not request this, please ignore this email.</p>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "CineVault - Password Reset",
+        html: message,
+      });
+      res.json({ success: true, message: "Email sent" });
+    } catch (err) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+      res.status(500).json({ success: false, message: "Email could not be sent" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @PUT /api/auth/resetpassword/:token
+const resetPassword = async (req, res) => {
+  try {
+    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ success: false, message: "Invalid or expired token" });
+
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully", token: generateToken(user._id) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, forgotPassword, resetPassword };

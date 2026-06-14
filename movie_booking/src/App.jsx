@@ -1,0 +1,127 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { LocationProvider } from "./context/LocationContext";
+import { ProtectedRoute, AdminRoute } from "./components/ProtectedRoute";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+// User Pages
+import Home from "./pages/Home";
+import Explore from "./pages/Explore";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
+import MovieDetails from "./pages/MovieDetails";
+import TheatreSelection from "./pages/TheatreSelection";
+import SeatSelection from "./pages/SeatSelection";
+import FoodSelection from "./pages/FoodSelection";
+import Payment from "./pages/Payment";
+import AdminDashboard from "./pages/AdminDashboard";
+import TicketScanner from "./pages/TicketScanner";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import MyBookings from "./pages/MyBookings";
+
+// Admin Pages
+import AdminLayout from "./admin/AdminLayout";
+import Dashboard from "./admin/pages/Dashboard";
+import ManageMovies from "./admin/pages/ManageMovies";
+import ManageTheatres from "./admin/pages/ManageTheatres";
+import ManageShows from "./admin/pages/ManageShows";
+import ManageBookings from "./admin/pages/ManageBookings";
+import ManageBanners from "./admin/pages/ManageBanners";
+
+import "./index.css";
+import Chatbot from "./components/Chatbot";
+
+const UserLayout = ({ children }) => (
+  <>
+    <Header />
+    {children}
+    <Footer />
+  </>
+);
+
+function App() {
+  return (
+    <AuthProvider>
+      <LocationProvider>
+        <Router>
+        <Routes>
+          {/* ── Public Routes ── */}
+          <Route path="/" element={<UserLayout><Home /></UserLayout>} />
+          <Route path="/explore" element={<UserLayout><Explore /></UserLayout>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/profile" element={<UserLayout><Profile /></UserLayout>} />
+          <Route path="/movie/:id" element={<UserLayout><MovieDetails /></UserLayout>} />
+          <Route path="/select-theatre/:movieId" element={<UserLayout><TheatreSelection /></UserLayout>} />
+
+          {/* ── Protected User Routes ── */}
+          <Route
+            path="/seat/:movieId/:theatreId/:showId"
+            element={<UserLayout><SeatSelection /></UserLayout>}
+          />
+          <Route
+            path="/payment"
+            element={<ProtectedRoute><UserLayout><Payment /></UserLayout></ProtectedRoute>}
+          />
+          <Route
+            path="/payment-success"
+            element={<ProtectedRoute><UserLayout><PaymentSuccess /></UserLayout></ProtectedRoute>}
+          />
+          <Route
+            path="/my-bookings"
+            element={<ProtectedRoute><UserLayout><MyBookings /></UserLayout></ProtectedRoute>}
+          />
+
+          {/* ── Admin Routes ── */}
+          <Route
+            path="/admin"
+            element={<AdminRoute><AdminLayout /></AdminRoute>}
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="movies" element={<ManageMovies />} />
+            <Route path="theatres" element={<ManageTheatres />} />
+            <Route path="shows" element={<ManageShows />} />
+            <Route path="bookings" element={<ManageBookings />} />
+            <Route path="banners" element={<ManageBanners />} />
+          </Route>
+
+          <Route
+            path="/admin-dashboard"
+            element={<AdminRoute><UserLayout><AdminDashboard /></UserLayout></AdminRoute>}
+          />
+          <Route
+            path="/staff/scanner"
+            element={<AdminRoute><UserLayout><TicketScanner /></UserLayout></AdminRoute>}
+          />
+          <Route path="/food" element={<UserLayout><FoodSelection /></UserLayout>} />
+
+          {/* ── 404 ── */}
+          <Route
+            path="*"
+            element={
+              <UserLayout>
+                <div className="page-loader" style={{ minHeight: "80vh" }}>
+                  <h1 style={{ fontSize: "5rem", color: "var(--clr-accent)" }}>404</h1>
+                  <p style={{ color: "var(--clr-text-muted)" }}>Page not found</p>
+                  <a href="/" className="btn btn-primary mt-6">Go Home</a>
+                </div>
+              </UserLayout>
+            }
+          />
+        </Routes>
+        <Chatbot />
+      </Router>
+      </LocationProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
