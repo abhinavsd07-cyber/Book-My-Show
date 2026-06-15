@@ -18,7 +18,7 @@ const generateGrid = (rows, seatsPerRow, rowOffset = 0) => {
 };
 
 export default function SeatSelection() {
-  const { movieId, theatreId, showId } = useParams();
+  const { showId } = useParams();
   const navigate = useNavigate();
   const [show, setShow] = useState(null);
   const [selected, setSelected] = useState([]);
@@ -28,7 +28,7 @@ export default function SeatSelection() {
   const location = useLocation();
   const maxQty = location.state?.qty || 2;
   const [showModal, setShowModal] = useState(true);
-  const [acceptedTC, setAcceptedTC] = useState(false);
+
 
   useEffect(() => {
     getShowById(showId)
@@ -55,7 +55,7 @@ export default function SeatSelection() {
     return () => {
       socket.disconnect();
     };
-  }, [showId]);
+  }, [showId, navigate]);
 
   if (loading) return <div className="page-loader" style={{ paddingTop: "80px" }}><div className="spinner" /></div>;
   if (!show) return null;
@@ -121,6 +121,26 @@ export default function SeatSelection() {
     });
   };
 
+  const handleSkipSnacks = () => {
+    if (!selected.length) return;
+    navigate("/payment", {
+      state: {
+        bookingDetails: {
+          show: show,
+          selectedSeats: selected,
+          totalAmount
+        },
+        convenienceFee,
+        gst,
+        grandTotal,
+        foodDetails: {
+          items: [],
+          total: 0
+        }
+      },
+    });
+  };
+
   return (
     <div className="ss-page page-wrapper">
       {/* ── T&C Modal ── */}
@@ -137,7 +157,7 @@ export default function SeatSelection() {
             </ul>
             <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
               <button className="btn btn-outline" onClick={() => navigate(-1)}>Cancel</button>
-              <button className="btn btn-primary" onClick={() => { setAcceptedTC(true); setShowModal(false); }}>Accept</button>
+              <button className="btn btn-primary" onClick={() => { setShowModal(false); }}>Accept</button>
             </div>
           </div>
         </div>
@@ -283,9 +303,18 @@ export default function SeatSelection() {
                   <span>Rs. {grandTotal}</span>
                 </div>
 
-                <button className="btn btn-primary w-full btn-lg mt-6" onClick={handleProceed}>
-                  Add Snacks
-                </button>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
+                  <button className="btn btn-primary w-full btn-lg" onClick={handleProceed}>
+                    Add Snacks
+                  </button>
+                  <button 
+                    className="btn btn-outline w-full btn-lg" 
+                    onClick={handleSkipSnacks}
+                    style={{ background: "transparent", borderColor: "var(--clr-border)", color: "var(--clr-text)" }}
+                  >
+                    Skip & Pay Rs. {grandTotal}
+                  </button>
+                </div>
               </div>
             </div>
           )}

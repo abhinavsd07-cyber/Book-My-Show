@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "./Auth.css";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,15 +60,37 @@ export default function Login() {
                 <label className="form-label" style={{ margin: 0 }}>Password</label>
                 <Link to="/forgot-password" style={{ fontSize: "0.85rem", color: "var(--clr-accent)", textDecoration: "none" }}>Forgot Password?</Link>
               </div>
-              <input
-                id="login-password"
-                type="password"
-                className="form-input"
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  className="form-input"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required
+                  style={{ paddingRight: "40px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    color: "var(--clr-text-muted)",
+                    cursor: "pointer",
+                    padding: 0,
+                    display: "flex"
+                  }}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                </button>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary w-full btn-lg mt-4" disabled={loading}>
               {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : "Login"}

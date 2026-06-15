@@ -13,7 +13,7 @@ const { createBooking, getUserBookings, getBookingById, cancelBooking, getAllBoo
 const { createPaymentIntent } = require("../controllers/paymentController");
 const { getDashboardStats, getRevenueByMonth, getAllUsers } = require("../controllers/adminController");
 const { uploadImage } = require("../controllers/uploadController");
-const { getBanners, getAllAdminBanners, createBanner, deleteBanner } = require("../controllers/bannerController");
+const { getBanners, getAllAdminBanners, createBanner, updateBanner, deleteBanner } = require("../controllers/bannerController");
 const { getMovieReviews, createReview, voteReview } = require("../controllers/reviewController");
 const { validateCoupon } = require("../controllers/couponController");
 const upload = require("../middleware/uploadMiddleware");
@@ -105,6 +105,7 @@ router.get("/admin/banners", protect, adminOnly, getAllAdminBanners);
 // ─────────────────────────────────────────────
 router.get("/banners", getBanners);
 router.post("/banners", protect, adminOnly, createBanner);
+router.put("/banners/:id", protect, adminOnly, updateBanner);
 router.delete("/banners/:id", protect, adminOnly, deleteBanner);
 
 module.exports = router;

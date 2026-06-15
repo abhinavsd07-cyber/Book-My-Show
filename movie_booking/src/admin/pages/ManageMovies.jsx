@@ -6,7 +6,8 @@ import "../AdminLayout.css";
 const EMPTY = { 
   title: "", description: "", genre: "", language: "", duration: "", rating: 7, 
   poster: "", backdrop: "", trailer: "", director: "", isNowShowing: true, isUpcoming: false,
-  cast: [], crew: [], itemType: "movie", basePrice: 0
+  cast: [], crew: [], itemType: "movie", basePrice: 0,
+  eventTime: "", eventLocation: "", eventAgeGroups: "", releaseDate: ""
 };
 
 export default function ManageMovies() {
@@ -19,15 +20,15 @@ export default function ManageMovies() {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState({});
 
-  const fetchMovies = () => {
+  const fetchMovies = React.useCallback(() => {
     setLoading(true);
     getAllMovies(search ? { search } : {})
       .then((r) => setMovies(r.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  };
+  }, [search]);
 
-  useEffect(() => { fetchMovies(); }, [search]);
+  useEffect(() => { fetchMovies(); }, [fetchMovies]);
 
   const openAdd = () => { setForm(EMPTY); setEditId(null); setModal("add"); };
   const openEdit = (m) => {
@@ -40,6 +41,10 @@ export default function ManageMovies() {
       crew: m.crew || [],
       itemType: m.itemType || "movie",
       basePrice: m.basePrice || 0,
+      eventTime: m.eventTime || "",
+      eventLocation: m.eventLocation || "",
+      eventAgeGroups: m.eventAgeGroups || "",
+      releaseDate: m.releaseDate ? new Date(m.releaseDate).toISOString().split('T')[0] : "",
     });
     setEditId(m._id);
     setModal("edit");
@@ -185,39 +190,63 @@ export default function ManageMovies() {
             <h3 className="modal-title">{modal === "add" ? "Add New Item" : "Edit Item"}</h3>
             <form onSubmit={handleSubmit} className="modal-form">
               
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Item Type *</label>
                   <select className="form-input" value={form.itemType} onChange={(e) => setForm({ ...form, itemType: e.target.value })}>
                     <option value="movie">Movie</option>
-                    <option value="event">Event</option>
+                    <option value="event">Ticketed Live Event</option>
                     <option value="premiere">Premiere (Stream)</option>
                   </select>
                 </div>
-                {form.itemType === "premiere" && (
+                {["premiere", "event"].includes(form.itemType) && (
                   <div className="form-group">
-                    <label className="form-label">Base Price (Rent/Buy) Rs. *</label>
+                    <label className="form-label">Base Price / Ticket Price (Rs.) *</label>
                     <input type="number" className="form-input" value={form.basePrice} onChange={(e) => setForm({ ...form, basePrice: e.target.value })} required />
                   </div>
                 )}
               </div>
 
+              {form.itemType === "event" && (
+                <div className="admin-grid-2" style={{ marginBottom: "18px" }}>
+                  <div className="form-group">
+                    <label className="form-label">Event Date</label>
+                    <input type="date" className="form-input" value={form.releaseDate} onChange={(e) => setForm({ ...form, releaseDate: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Event Time</label>
+                    <input className="form-input" value={form.eventTime} onChange={(e) => setForm({ ...form, eventTime: e.target.value })} placeholder="e.g. 4:00 PM" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Location</label>
+                    <input className="form-input" value={form.eventLocation} onChange={(e) => setForm({ ...form, eventLocation: e.target.value })} placeholder="e.g. Crowne Plaza" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Age Groups</label>
+                    <input className="form-input" value={form.eventAgeGroups} onChange={(e) => setForm({ ...form, eventAgeGroups: e.target.value })} placeholder="e.g. All age groups" />
+                  </div>
+                </div>
+              )}
+
               <div className="form-group"><label className="form-label">Title *</label><input className="form-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
               <div className="form-group"><label className="form-label">Description *</label><textarea className="form-input" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required style={{ resize: "vertical" }} /></div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">Genre (comma-separated)</label><input className="form-input" value={form.genre} onChange={(e) => setForm({ ...form, genre: e.target.value })} placeholder="Action, Thriller" /></div>
                 <div className="form-group"><label className="form-label">Language (comma-separated)</label><input className="form-input" value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} placeholder="English, Hindi" /></div>
               </div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">Duration</label><input className="form-input" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="2h 30m" /></div>
                 <div className="form-group"><label className="form-label">Base Rating (0-10)</label><input className="form-input" type="number" min={0} max={10} step={0.1} value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} /></div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
-                  <label className="form-label">Poster URL * {uploading.poster && "(Uploading...)"}</label>
+                  <label className="form-label">
+                    {form.itemType === "event" ? "Portrait Poster URL (Home/Grid) *" : "Poster URL *"} 
+                    {uploading.poster && " (Uploading...)"}
+                  </label>
                   <div style={{ display: "flex", gap: 8 }}>
                     <input className="form-input" value={form.poster} onChange={(e) => setForm({ ...form, poster: e.target.value })} required />
                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "poster")} style={{ display: "none" }} id="poster-upload" />
@@ -225,7 +254,10 @@ export default function ManageMovies() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Backdrop URL {uploading.backdrop && "(Uploading...)"}</label>
+                  <label className="form-label">
+                    {form.itemType === "event" ? "Landscape Banner URL (Tickets/Details)" : "Backdrop URL"} 
+                    {uploading.backdrop && " (Uploading...)"}
+                  </label>
                   <div style={{ display: "flex", gap: 8 }}>
                     <input className="form-input" value={form.backdrop} onChange={(e) => setForm({ ...form, backdrop: e.target.value })} />
                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "backdrop")} style={{ display: "none" }} id="backdrop-upload" />
@@ -248,7 +280,7 @@ export default function ManageMovies() {
                   <button type="button" className="btn btn-sm btn-outline" onClick={() => addArrayRow("cast")}>+ Add Cast</button>
                 </div>
                 {form.cast.map((c, i) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 2fr 3fr auto", gap: 10, marginBottom: 10, alignItems: "center" }}>
+                  <div key={i} className="admin-grid-cast">
                     <input className="form-input" placeholder="Name" value={c.name} onChange={e => updateArrayRow("cast", i, "name", e.target.value)} />
                     <input className="form-input" placeholder="Role/Character" value={c.role} onChange={e => updateArrayRow("cast", i, "role", e.target.value)} />
                     <div style={{ display: "flex", gap: 8 }}>
@@ -269,7 +301,7 @@ export default function ManageMovies() {
                   <button type="button" className="btn btn-sm btn-outline" onClick={() => addArrayRow("crew")}>+ Add Crew</button>
                 </div>
                 {form.crew.map((c, i) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 2fr 3fr auto", gap: 10, marginBottom: 10, alignItems: "center" }}>
+                  <div key={i} className="admin-grid-cast">
                     <input className="form-input" placeholder="Name" value={c.name} onChange={e => updateArrayRow("crew", i, "name", e.target.value)} />
                     <input className="form-input" placeholder="Department/Role" value={c.role} onChange={e => updateArrayRow("crew", i, "role", e.target.value)} />
                     <div style={{ display: "flex", gap: 8 }}>

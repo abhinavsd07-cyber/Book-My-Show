@@ -33,14 +33,21 @@ export default function TheatreSelection() {
     getMovieById(movieId)
       .then((r) => setMovie(r.data.data))
       .catch(() => navigate("/"));
-  }, [movieId]);
+  }, [movieId, navigate]);
 
   useEffect(() => {
-    setLoading(true);
-    getShowsByMovie(movieId, { date: formatDate(DAYS[selectedDate]), location })
-      .then((r) => setTheatreData(r.data.data))
-      .catch(() => setTheatreData([]))
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const r = await getShowsByMovie(movieId, { date: formatDate(DAYS[selectedDate]), location });
+        setTheatreData(r.data.data);
+      } catch {
+        setTheatreData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [movieId, selectedDate, location]);
 
   return (

@@ -4,7 +4,7 @@ import axios from "axios";
 import "./TicketScanner.css";
 
 export default function TicketScanner() {
-  const [scanResult, setScanResult] = useState(null);
+
   const [status, setStatus] = useState("idle"); // idle, success, error
   const [message, setMessage] = useState("");
 
@@ -19,7 +19,7 @@ export default function TicketScanner() {
     const onScanSuccess = async (decodedText) => {
       // Pause scanning on success to prevent multiple API calls
       scanner.pause();
-      setScanResult(decodedText);
+
       setStatus("loading");
       setMessage("Verifying ticket...");
 
@@ -36,7 +36,7 @@ export default function TicketScanner() {
         
         // Play success sound
         const audio = new Audio("https://actions.google.com/sounds/v1/ui/beep_short.ogg");
-        audio.play().catch(e => console.log("Audio play prevented"));
+        audio.play().catch(() => console.log("Audio play prevented"));
 
       } catch (err) {
         setStatus("error");
@@ -44,19 +44,19 @@ export default function TicketScanner() {
         
         // Play error sound
         const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-        audio.play().catch(e => console.log("Audio play prevented"));
+        audio.play().catch(() => console.log("Audio play prevented"));
       }
 
       // Resume scanning after 4 seconds
       setTimeout(() => {
-        setScanResult(null);
+
         setStatus("idle");
         setMessage("");
         scanner.resume();
       }, 4000);
     };
 
-    scanner.render(onScanSuccess, (err) => {
+    scanner.render(onScanSuccess, () => {
       // ignore frame errors
     });
 

@@ -74,11 +74,7 @@ export default function Explore() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  useEffect(() => {
-    fetchMovies();
-  }, [debouncedSearch, itemType, selectedGenre, selectedLanguage, location]);
-
-  const fetchMovies = () => {
+  const fetchMovies = React.useCallback(() => {
     setLoading(true);
     const params = {};
     if (debouncedSearch) params.search = debouncedSearch;
@@ -91,13 +87,18 @@ export default function Explore() {
       .then((res) => setMovies(res.data.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  };
+  }, [debouncedSearch, itemType, selectedGenre, selectedLanguage, location]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    fetchMovies();
+  }, [fetchMovies]);
 
   const handleCardClick = (m) => {
     if (m.itemType === "premiere") {
       navigate(`/movie/${m._id}`);
     } else if (m.itemType === "event") {
-      navigate(`/movie/${m._id}`);
+      navigate(`/events/${m._id}`);
     } else {
       navigate(`/movie/${m._id}`);
     }

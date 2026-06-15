@@ -92,11 +92,11 @@ export default function ManageShows() {
                   {theatres.map((t) => <option key={t._id} value={t._id}>{t.name} — {t.location}</option>)}
                 </select>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">Date *</label><input className="form-input" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></div>
                 <div className="form-group"><label className="form-label">Time *</label><input className="form-input" type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required /></div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-3">
                 <div className="form-group"><label className="form-label">Format</label>
                   <select className="form-input" value={form.format} onChange={(e) => setForm({ ...form, format: e.target.value })}>
                     {["2D","3D","IMAX","4DX"].map((f) => <option key={f}>{f}</option>)}
@@ -107,7 +107,7 @@ export default function ManageShows() {
               </div>
               <div style={{ background: "var(--clr-surface-2)", border: "1px solid var(--clr-border)", borderRadius: "var(--radius-lg)", padding: "16px" }}>
                 <p style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: 12, color: "var(--clr-text-muted)" }}>SEAT PRICING</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                <div className="admin-grid-3">
                   <div className="form-group"><label className="form-label text-gold">Gold ₹</label><input className="form-input" type="number" value={form.goldPrice} onChange={(e) => setForm({ ...form, goldPrice: e.target.value })} /></div>
                   <div className="form-group"><label className="form-label" style={{ color: "var(--clr-platinum)" }}>Platinum ₹</label><input className="form-input" type="number" value={form.platinumPrice} onChange={(e) => setForm({ ...form, platinumPrice: e.target.value })} /></div>
                   <div className="form-group"><label className="form-label" style={{ color: "var(--clr-recliner)" }}>Recliner ₹</label><input className="form-input" type="number" value={form.reclinerPrice} onChange={(e) => setForm({ ...form, reclinerPrice: e.target.value })} /></div>

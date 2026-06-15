@@ -35,10 +35,10 @@ export default function Chatbot() {
       return 'Yes! We offer a variety of Food & Beverage options. You can add popcorn, nachos, and drinks to your order during the booking process.';
     }
     if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
-      return 'Hello there! Enjoying CineVault? Let me know if you need help finding a movie or managing your tickets.';
+      return 'Hello there! Enjoying Book My Show? Let me know if you need help finding a movie or managing your tickets.';
     }
 
-    return "I'm still learning! For complex issues, please reach out to our human support team at support@cinevault.com.";
+    return "I'm still learning! For complex issues, please reach out to our human support team at support@bookmyshow.com.";
   };
 
   const handleSend = (e) => {

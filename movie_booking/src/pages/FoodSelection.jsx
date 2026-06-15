@@ -66,7 +66,7 @@ export default function FoodSelection() {
 
   return (
     <div className="food-selection-page page-wrapper">
-      <SEO title="Grab a Snack - CineVault" />
+      <SEO title="Grab a Snack - Book My Show" />
       <div className="container" style={{ padding: "40px 20px" }}>
         <h1 style={{ marginBottom: "10px" }}>Grab a Bite! 🍿</h1>
         <p style={{ color: "var(--clr-text-muted)", marginBottom: "40px" }}>

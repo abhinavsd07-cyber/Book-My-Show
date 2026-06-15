@@ -12,7 +12,7 @@ const bookingSchema = new mongoose.Schema(
     show: { type: mongoose.Schema.Types.ObjectId, ref: "Show" },
     seats: [
       {
-        type: { type: String, enum: ["gold", "platinum", "recliner"] },
+        type: { type: String },
         seatNumber: { type: String },
       },
     ],

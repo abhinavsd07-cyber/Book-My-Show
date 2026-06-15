@@ -118,7 +118,7 @@ const forgotPassword = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: "CineVault - Password Reset",
+        subject: "Book My Show - Password Reset",
         html: message,
       });
       res.json({ success: true, message: "Email sent" });

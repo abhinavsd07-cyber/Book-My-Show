@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { getUserBookings, cancelBooking } from "../config/allApis";
 import { FaTicket, FaFilm, FaBuilding, FaCalendar, FaClock, FaDownload, FaCalendarDay } from "react-icons/fa6";
 import html2canvas from "html2canvas";
@@ -10,15 +10,14 @@ import "./MyBookings.css";
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
-  const fetch = () => {
+  const fetch = React.useCallback(() => {
     getUserBookings()
       .then((r) => setBookings(r.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  };
-  useEffect(() => { fetch(); }, []);
+  }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   const handleCancel = async (id) => {
     if (!window.confirm("Cancel this booking? Seats will be released.")) return;
@@ -47,7 +46,7 @@ export default function MyBookings() {
       pdf.rect(0, 0, pdfWidth, pdfHeight + 20, "F");
       
       pdf.addImage(imgData, "PNG", 10, 10, pdfWidth - 20, pdfHeight - 20);
-      pdf.save(`CineVault_Ticket_${title.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`Book_My_Show_Ticket_${title.replace(/\s+/g, '_')}.pdf`);
     } catch (err) {
       console.error("PDF Generation failed", err);
     } finally {
@@ -85,7 +84,7 @@ export default function MyBookings() {
       const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
-      link.setAttribute("download", `CineVault_${title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`);
+      link.setAttribute("download", `Book_My_Show_${title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -115,11 +114,12 @@ export default function MyBookings() {
           <div className="mb-list">
             {bookings.map((b) => {
               const title = b.show?.movie?.title || b.item?.title;
-              const poster = b.show?.movie?.poster || b.item?.poster;
+              const isEvent = b.show?.movie?.itemType === "event" || b.item?.itemType === "event";
+              const poster = isEvent ? (b.show?.movie?.backdrop || b.show?.movie?.poster || b.item?.backdrop || b.item?.poster) : (b.show?.movie?.poster || b.item?.poster);
               const isPremiere = !b.show;
 
               return (
-                <div key={b._id} className={`mb-card glass ${b.status === "cancelled" ? "mb-cancelled" : ""}`}>
+                <div key={b._id} className={`mb-card glass ${b.status === "cancelled" ? "mb-cancelled" : ""} ${isEvent ? "mb-card-event" : ""}`}>
                   <img src={poster} alt={title} className="mb-poster" />
                   <div className="mb-info">
                     <div className="mb-top">
@@ -145,41 +145,51 @@ export default function MyBookings() {
                       </div>
                     )}
 
-                  <div className="mb-footer">
-                    <div style={{ width: "100%" }}>
-                      <p style={{ margin: "4px 0", color: "var(--clr-text)" }}><strong>Booking ID:</strong> <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>{b.bookingId}</span></p>
-                      {b.foodItems && b.foodItems.length > 0 && (
-                        <p style={{ margin: "4px 0" }}>
-                          <strong>Food:</strong> {b.foodItems.map(f => `${f.quantity}x ${f.name}`).join(", ")}
-                        </p>
-                      )}
+                    <div className="mb-footer">
+                      <div style={{ width: "100%" }}>
+                        <p style={{ margin: "4px 0", color: "var(--clr-text)" }}><strong>Booking ID:</strong> <span style={{ fontFamily: "monospace", fontSize: "0.85rem" }}>{b.bookingId}</span></p>
+                        {b.foodItems && b.foodItems.length > 0 && (
+                          <p style={{ margin: "4px 0" }}>
+                            <strong>Food:</strong> {b.foodItems.map(f => `${f.quantity}x ${f.name}`).join(", ")}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ textAlign: "right", minWidth: "100px" }}>
+                        <p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>Total Paid</p>
+                        <p style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--clr-success)" }}>₹{b.grandTotal?.toLocaleString("en-IN")}</p>
+                      </div>
                     </div>
-                    <div style={{ textAlign: "right", minWidth: "100px" }}>
-                      <p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>Total Paid</p>
-                      <p style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--clr-success)" }}>₹{b.grandTotal?.toLocaleString("en-IN")}</p>
-                    </div>
+
+                    {b.status === "confirmed" && (
+                      <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+                        <button className="btn btn-sm" style={{ flex: 1, background: "rgba(45,196,146,0.1)", color: "var(--clr-success)", border: "1px solid rgba(45,196,146,0.3)", justifyContent: "center" }} onClick={() => handleDownload(b._id, title)}>
+                          <FaDownload style={{ fontSize: "1.2rem", marginRight: "4px" }} /> Save PDF
+                        </button>
+                        {!isPremiere && (
+                          <button className="btn btn-sm" style={{ flex: 1, background: "rgba(59,130,246,0.1)", color: "var(--clr-primary)", border: "1px solid rgba(59,130,246,0.3)", justifyContent: "center" }} onClick={() => handleAddToCalendar(b, title)}>
+                            <FaCalendarDay style={{ fontSize: "1.1rem", marginRight: "4px" }} /> Calendar
+                          </button>
+                        )}
+                        <button className="btn btn-sm" style={{ flex: 1, background: "rgba(239,68,68,0.1)", color: "var(--clr-error)", border: "1px solid rgba(239,68,68,0.3)", justifyContent: "center" }} onClick={() => handleCancel(b._id)} id={`cancel-booking-${b._id}`}>
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  {b.status === "confirmed" && (
-                    <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                      <button className="btn btn-sm" style={{ flex: 1, background: "rgba(45,196,146,0.1)", color: "var(--clr-success)", border: "1px solid rgba(45,196,146,0.3)", justifyContent: "center" }} onClick={() => handleDownload(b._id, title)}>
-                        <FaDownload style={{ fontSize: "1.2rem", marginRight: "4px" }} /> PDF
-                      </button>
-                      {!isPremiere && (
-                        <button className="btn btn-sm" style={{ flex: 1, background: "rgba(59,130,246,0.1)", color: "var(--clr-primary)", border: "1px solid rgba(59,130,246,0.3)", justifyContent: "center" }} onClick={() => handleAddToCalendar(b, title)}>
-                          <FaCalendarDay style={{ fontSize: "1.1rem", marginRight: "4px" }} /> Add
-                        </button>
-                      )}
-                      <button className="btn btn-sm" style={{ flex: 1, background: "rgba(239,68,68,0.1)", color: "var(--clr-error)", border: "1px solid rgba(239,68,68,0.3)", justifyContent: "center" }} onClick={() => handleCancel(b._id)} id={`cancel-booking-${b._id}`}>
-                        Cancel
-                      </button>
+                  {/* Tear-away QR Section */}
+                  <div className="mb-qr-section">
+                    <div className="mb-qr-cutout"></div>
+                    <div className="mb-qr-container">
+                      <QRCode value={b.bookingId || b._id} size={90} />
+                      <p className="mb-qr-text">Scan at entry</p>
                     </div>
-                  )}
+                  </div>
 
                   {/* Hidden PDF Ticket Template */}
                   <div id={`ticket-${b._id}`} style={{ position: "absolute", top: "-9999px", left: "-9999px", width: "400px", padding: "30px", background: "#ffffff", color: "#000000", fontFamily: "sans-serif", borderRadius: "12px", border: "1px solid #e0e0e0" }}>
                     <div style={{ textAlign: "center", borderBottom: "2px dashed #cccccc", paddingBottom: "15px", marginBottom: "20px" }}>
-                      <h1 style={{ margin: 0, color: "#E50914", fontSize: "28px", letterSpacing: "2px" }}>CineVault</h1>
+                      <h1 style={{ margin: 0, color: "#E50914", fontSize: "28px", letterSpacing: "2px" }}>Book My Show</h1>
                       <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#666666", textTransform: "uppercase", letterSpacing: "4px" }}>Admit One</p>
                     </div>
                     
@@ -210,7 +220,6 @@ export default function MyBookings() {
                       <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#888" }}>Please present this QR code at the entrance</p>
                     </div>
                   </div>
-                </div>
                 </div>
               );
             })}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { SiGooglepay, SiPhonepe, SiPaytm } from "react-icons/si";
 import { createPaymentIntent, createBooking, getMovieById, validateCoupon } from "../config/allApis";
 import "./Payment.css";
 
@@ -22,7 +23,7 @@ const CARD_ELEMENT_OPTIONS = {
   hidePostalCode: true,
 };
 
-function CheckoutForm({ show, isPremiere, premiereItem, selectedSeats, totalAmount, convenienceFee, gst, grandTotal }) {
+function CheckoutForm({ show, premiereItem, selectedSeats, foodItems, grandTotal }) {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ function CheckoutForm({ show, isPremiere, premiereItem, selectedSeats, totalAmou
 
     try {
       const piRes = await createPaymentIntent({ amount: grandTotal });
-      const { clientSecret, paymentIntentId } = piRes.data.data;
+      const { clientSecret } = piRes.data.data;
 
       const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
@@ -57,11 +58,12 @@ function CheckoutForm({ show, isPremiere, premiereItem, selectedSeats, totalAmou
 
       const bookingData = {
         showId: show?._id,
-        itemId: premiereItem?._id,
+        itemId: premiereItem?._id || bookingDetails?.itemId || state?.itemId || show?.movie?._id,
         seats: selectedSeats?.map((s) => ({ type: s.type, seatNumber: s.id })),
         foodItems,
         stripePaymentIntentId: paymentIntent.id,
-        useCoins: window.useCoinsGlobal // passing via a global var for simplicity or pass as prop
+        useCoins: window.useCoinsGlobal,
+        totalAmount: initialAmount
       };
 
       const bookingRes = await createBooking(bookingData);
@@ -133,13 +135,13 @@ export default function Payment() {
   const state = location.state;
 
   const { bookingDetails, foodItems } = state || {};
-  const { show, itemId, selectedSeats, isPremiere } = bookingDetails || state || {};
+  const { show, itemId, selectedSeats, isPremiere, isEvent, eventItem } = bookingDetails || state || {};
 
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [upiApp, setUpiApp] = useState("gpay");
   const [processing, setProcessing] = useState(false);
-  const [premiereItem, setPremiereItem] = useState(null);
-  const [loading, setLoading] = useState(isPremiere);
+  const [premiereItem, setPremiereItem] = useState(eventItem || null);
+  const [loading, setLoading] = useState(isPremiere && !eventItem);
 
   const [promoCode, setPromoCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -160,27 +162,27 @@ export default function Payment() {
   }, [useCoins]);
 
   useEffect(() => {
-    if (isPremiere && itemId) {
+    if (isPremiere && itemId && !eventItem) {
       getMovieById(itemId)
         .then((r) => setPremiereItem(r.data.data))
         .catch(() => navigate("/"))
         .finally(() => setLoading(false));
     }
-  }, [isPremiere, itemId]);
+  }, [isPremiere, itemId, eventItem, navigate]);
 
   useEffect(() => {
-    if (!show && !isPremiere) {
+    if (!show && !isPremiere && !isEvent) {
       navigate("/");
     }
-  }, [show, isPremiere, navigate]);
+  }, [show, isPremiere, isEvent, navigate]);
 
-  if (!show && !isPremiere) {
+  if (!show && !isPremiere && !isEvent) {
     return null;
   }
 
   if (loading) return <div className="page-loader" style={{ paddingTop: "80px" }}><div className="spinner" /></div>;
 
-  const initialAmount = bookingDetails?.totalAmount || state?.totalAmount || 0;
+  const initialAmount = Number(bookingDetails?.totalAmount || state?.totalAmount || premiereItem?.basePrice || 0) || 0;
   const foodTotal = foodItems?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
   const totalAmount = initialAmount + foodTotal;
   const convenienceFee = Math.round(totalAmount * 0.05);
@@ -219,16 +221,18 @@ export default function Payment() {
     try {
       const bookingData = {
         showId: show?._id,
-        itemId: premiereItem?._id,
+        itemId: premiereItem?._id || itemId || show?.movie?._id,
         seats: selectedSeats?.map((s) => ({ type: s.type, seatNumber: s.id })),
         foodItems,
         stripePaymentIntentId: `mock_upi_${upiApp}_${Date.now()}`,
-        useCoins
+        useCoins,
+        totalAmount: initialAmount
       };
 
       const bookingRes = await createBooking(bookingData);
       navigate("/payment-success", { state: { booking: bookingRes.data.data } });
     } catch (err) {
+      console.error(err);
       alert("Payment failed. Please try again.");
       setProcessing(false);
     }
@@ -242,10 +246,12 @@ export default function Payment() {
             <div className="pay-card order-summary">
               <h2 className="pay-section-title">Order Summary</h2>
 
-              {isPremiere ? (
+              {isPremiere || isEvent ? (
                 <div className="pay-movie-card">
                   <h3 className="pay-movie-name">{premiereItem?.title}</h3>
-                  <p className="pay-detail text-dim">Premiere Stream • {premiereItem?.language?.join(", ")}</p>
+                  <p className="pay-detail text-dim">
+                    {isEvent ? `Live Event • ${premiereItem?.eventLocation || "Venue TBA"}` : `Premiere Stream • ${premiereItem?.language?.join(", ")}`}
+                  </p>
                 </div>
               ) : (
                 <div className="pay-movie-card">
@@ -347,7 +353,41 @@ export default function Payment() {
             <div className="pay-card">
               <h2 className="pay-section-title">Payment Options</h2>
               
-              <div className="payment-method-tabs">
+              {grandTotal === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0" }}>
+                  <h3 style={{ color: "var(--clr-accent)", marginBottom: "15px" }}>Fully Covered!</h3>
+                  <p className="text-dim mb-4">Your order total is covered by your discounts. No payment required.</p>
+                  <button 
+                    className="btn btn-primary w-full btn-lg pay-btn"
+                    onClick={async () => {
+                      setProcessing(true);
+                      try {
+                        const bookingData = {
+                          showId: show?._id,
+                          itemId: premiereItem?._id || itemId || show?.movie?._id,
+                          seats: selectedSeats?.map((s) => ({ type: s.type, seatNumber: s.id })),
+                          foodItems,
+                          stripePaymentIntentId: "free_booking_" + Date.now(),
+                          useCoins,
+                          totalAmount: initialAmount
+                        };
+                        const { createBooking } = await import("../config/allApis");
+                        const bookingRes = await createBooking(bookingData);
+                        navigate("/payment-success", { state: { booking: bookingRes.data.data } });
+                      } catch (err) {
+                        console.error(err);
+                        alert("Booking failed. Please try again.");
+                        setProcessing(false);
+                      }
+                    }}
+                    disabled={processing}
+                  >
+                    {processing ? "Processing..." : "Complete Booking"}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="payment-method-tabs">
                 <button 
                   className={`pm-tab ${paymentMethod === 'upi' ? 'active' : ''}`}
                   onClick={() => setPaymentMethod('upi')}
@@ -370,21 +410,21 @@ export default function Payment() {
                       className={`upi-app-btn ${upiApp === 'gpay' ? 'selected' : ''}`}
                       onClick={() => setUpiApp('gpay')}
                     >
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay" />
+                      <SiGooglepay size={40} />
                       <span>GPay</span>
                     </button>
                     <button 
                       className={`upi-app-btn ${upiApp === 'phonepe' ? 'selected' : ''}`}
                       onClick={() => setUpiApp('phonepe')}
                     >
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" style={{ height: "24px", objectFit: "contain" }} />
+                      <SiPhonepe size={28} color="#5E5CE6" style={{ margin: "0 6px" }} />
                       <span>PhonePe</span>
                     </button>
                     <button 
                       className={`upi-app-btn ${upiApp === 'paytm' ? 'selected' : ''}`}
                       onClick={() => setUpiApp('paytm')}
                     >
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" />
+                      <SiPaytm size={40} color="#0F4A8A" />
                       <span>Paytm</span>
                     </button>
                   </div>
@@ -410,13 +450,13 @@ export default function Payment() {
                       isPremiere={state.isPremiere}
                       premiereItem={premiereItem}
                       selectedSeats={selectedSeats}
-                      totalAmount={totalAmount}
-                      convenienceFee={convenienceFee}
-                      gst={gst}
+                      foodItems={foodItems}
                       grandTotal={grandTotal}
                     />
                   </Elements>
                 </div>
+              )}
+              </>
               )}
             </div>
           </div>

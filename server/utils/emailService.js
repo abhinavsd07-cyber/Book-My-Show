@@ -60,13 +60,13 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
           </div>
         </div>
         <div style="background-color: #0f3460; padding: 16px; text-align: center; font-size: 12px; color: #cccccc;">
-          <p style="margin: 0;">&copy; 2026 Cinevault. All rights reserved.</p>
+          <p style="margin: 0;">&copy; 2026 Book My Show. All rights reserved.</p>
         </div>
       </div>
     `;
 
     const info = await transporter.sendMail({
-      from: '"Cinevault Tickets" <no-reply@cinevault.com>', // sender address
+      from: '"Book My Show Tickets" <no-reply@bookmyshow.com>', // sender address
       to: userEmail, // list of receivers
       subject: "Your Movie Ticket is Confirmed! 🍿", // Subject line
       html: htmlContent, // html body

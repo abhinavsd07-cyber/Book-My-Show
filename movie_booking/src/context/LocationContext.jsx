@@ -1,18 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState } from "react";
 
 const LocationContext = createContext(null);
 
 export const LocationProvider = ({ children }) => {
-  const [location, setLocation] = useState("Kochi"); // Default location
-
-  useEffect(() => {
+  const [location, setLocation] = useState(() => {
     const storedLoc = localStorage.getItem("userLocation");
-    if (storedLoc) {
-      setLocation(storedLoc);
-    } else {
-      localStorage.setItem("userLocation", "Kochi");
-    }
-  }, []);
+    if (storedLoc) return storedLoc;
+    localStorage.setItem("userLocation", "Kochi");
+    return "Kochi";
+  });
 
   const changeLocation = (newLocation) => {
     setLocation(newLocation);

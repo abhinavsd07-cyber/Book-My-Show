@@ -1,6 +1,10 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Fix for Node.js DNS resolution issues on Windows (ECONNREFUSED for SRV queries)
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -52,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health Check
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "🎬 CineVault API is running..." });
+  res.json({ success: true, message: "🎬 Book My Show API is running..." });
 });
 
 // API Routes

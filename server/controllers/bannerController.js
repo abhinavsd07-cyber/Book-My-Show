@@ -65,9 +65,34 @@ const deleteBanner = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Update a banner
+// @route   PUT /api/banners/:id
+// @access  Private/Admin
+const updateBanner = asyncHandler(async (req, res) => {
+  const { imageUrl, type, targetLink } = req.body;
+  const banner = await Banner.findById(req.params.id);
+
+  if (!banner) {
+    res.status(404);
+    throw new Error("Banner not found");
+  }
+
+  banner.imageUrl = imageUrl || banner.imageUrl;
+  banner.type = type || banner.type;
+  banner.targetLink = targetLink !== undefined ? targetLink : banner.targetLink;
+
+  const updatedBanner = await banner.save();
+
+  res.status(200).json({
+    success: true,
+    data: updatedBanner,
+  });
+});
+
 module.exports = {
   getBanners,
   getAllAdminBanners,
   createBanner,
+  updateBanner,
   deleteBanner,
 };

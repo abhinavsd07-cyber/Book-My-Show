@@ -9,14 +9,19 @@ import Footer from "./components/Footer";
 // User Pages
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
+import Offers from "./pages/Offers";
+import GiftCards from "./pages/GiftCards";
+import Stream from "./pages/Stream";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import MovieDetails from "./pages/MovieDetails";
+import EventDetails from "./pages/EventDetails";
 import TheatreSelection from "./pages/TheatreSelection";
 import SeatSelection from "./pages/SeatSelection";
+import EventTicketSelection from "./pages/EventTicketSelection";
 import FoodSelection from "./pages/FoodSelection";
 import Payment from "./pages/Payment";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -53,13 +58,18 @@ function App() {
           {/* ── Public Routes ── */}
           <Route path="/" element={<UserLayout><Home /></UserLayout>} />
           <Route path="/explore" element={<UserLayout><Explore /></UserLayout>} />
+          <Route path="/stream" element={<UserLayout><Stream /></UserLayout>} />
+          <Route path="/offers" element={<UserLayout><Offers /></UserLayout>} />
+          <Route path="/giftcards" element={<UserLayout><GiftCards /></UserLayout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/profile" element={<UserLayout><Profile /></UserLayout>} />
           <Route path="/movie/:id" element={<UserLayout><MovieDetails /></UserLayout>} />
+          <Route path="/events/:id" element={<UserLayout><EventDetails /></UserLayout>} />
           <Route path="/select-theatre/:movieId" element={<UserLayout><TheatreSelection /></UserLayout>} />
+          <Route path="/event-tickets/:id" element={<UserLayout><EventTicketSelection /></UserLayout>} />
 
           {/* ── Protected User Routes ── */}
           <Route

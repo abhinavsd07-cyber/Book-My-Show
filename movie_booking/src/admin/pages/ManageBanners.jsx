@@ -6,6 +6,7 @@ export default function ManageBanners() {
   const [type, setType] = useState("hero");
   const [targetLink, setTargetLink] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
     fetchBanners();
@@ -23,31 +24,52 @@ export default function ManageBanners() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return alert("Please select an image file");
+    if (!editId && !file) return alert("Please select an image file");
     
     setUploading(true);
     try {
-      const { uploadImage, createBanner } = await import("../../config/allApis");
+      const { uploadImage, createBanner, updateBanner } = await import("../../config/allApis");
       
-      // 1. Upload to S3
-      const formData = new FormData();
-      formData.append("image", file);
-      const uploadRes = await uploadImage(formData);
-      const imageUrl = uploadRes.data.url;
+      let imageUrl;
+      if (file) {
+        const formData = new FormData();
+        formData.append("image", file);
+        const uploadRes = await uploadImage(formData);
+        imageUrl = uploadRes.data.url;
+      }
 
-      // 2. Create Banner Record
-      await createBanner({ imageUrl, type, targetLink });
+      if (editId) {
+        await updateBanner(editId, { imageUrl, type, targetLink });
+        alert("Banner updated successfully!");
+      } else {
+        await createBanner({ imageUrl, type, targetLink });
+        alert("Banner uploaded successfully!");
+      }
       
-      alert("Banner uploaded successfully!");
       setFile(null);
       setTargetLink("");
+      setEditId(null);
       fetchBanners();
     } catch (err) {
       console.error(err);
-      alert("Error uploading banner");
+      alert("Error saving banner");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEdit = (b) => {
+    setEditId(b._id);
+    setType(b.type);
+    setTargetLink(b.targetLink || "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setFile(null);
+    setType("hero");
+    setTargetLink("");
   };
 
   const handleDelete = async (id) => {
@@ -65,32 +87,39 @@ export default function ManageBanners() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h2>Manage Ad Carousels</h2>
-          <p className="text-muted">Upload and manage homepage banners</p>
+          <h2>Manage Ad Carousels & Event Categories</h2>
+          <p className="text-muted">Upload homepage hero banners and square Event Category cards.</p>
         </div>
       </div>
       
       <div className="admin-table-wrap mb-8" style={{ maxWidth: "600px", padding: "24px" }}>
-        <h3 className="table-title mb-4">Upload New Banner</h3>
+        <h3 className="table-title mb-4">{editId ? "Edit Banner" : "Upload New Banner"}</h3>
         <form onSubmit={handleUpload} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div className="form-group">
-            <label className="form-label">Upload Image (AWS S3)</label>
+            <label className="form-label">Upload Image (AWS S3) {editId && "(Leave empty to keep current)"}</label>
             <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="form-input" />
           </div>
           <div className="form-group">
             <label className="form-label">Banner Type</label>
             <select value={type} onChange={(e) => setType(e.target.value)} className="form-input">
               <option value="hero">Hero (Top Carousel)</option>
-              <option value="middle">Middle (Live Events Banner)</option>
+              <option value="middle">Event Category Cards (Square)</option>
             </select>
           </div>
           <div className="form-group">
             <label className="form-label">Target Link (Optional)</label>
             <input type="text" placeholder="/movie/123" value={targetLink} onChange={(e) => setTargetLink(e.target.value)} className="form-input" />
           </div>
-          <button type="submit" className="btn btn-primary mt-2" disabled={uploading}>
-            {uploading ? "Uploading..." : "Upload Banner"}
-          </button>
+          <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+            <button type="submit" className="btn btn-primary" disabled={uploading}>
+              {uploading ? "Saving..." : editId ? "Update Banner" : "Upload Banner"}
+            </button>
+            {editId && (
+              <button type="button" className="btn btn-outline" onClick={cancelEdit}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -119,9 +148,14 @@ export default function ManageBanners() {
                   </td>
                   <td>{b.targetLink || "-"}</td>
                   <td>
-                    <button onClick={() => handleDelete(b._id)} className="btn btn-sm btn-outline" style={{ color: "var(--clr-error)", borderColor: "var(--clr-error)" }}>
-                      Delete
-                    </button>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button onClick={() => handleEdit(b)} className="btn btn-sm btn-outline" style={{ color: "var(--clr-primary)", borderColor: "var(--clr-primary)" }}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(b._id)} className="btn btn-sm btn-outline" style={{ color: "var(--clr-error)", borderColor: "var(--clr-error)" }}>
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

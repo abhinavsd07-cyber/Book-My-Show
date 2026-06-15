@@ -30,7 +30,7 @@ export default function MovieDetails() {
   // Trailer Modal State
   const [showTrailerModal, setShowTrailerModal] = useState(false);
 
-  const fetchMovieData = () => {
+  const fetchMovieData = React.useCallback(() => {
     setLoading(true);
     Promise.all([
       getMovieById(id),
@@ -44,11 +44,11 @@ export default function MovieDetails() {
       })
       .catch(() => navigate("/"))
       .finally(() => setLoading(false));
-  };
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchMovieData();
-  }, [id]);
+  }, [fetchMovieData]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +78,7 @@ export default function MovieDetails() {
   const handleShare = async () => {
     const shareData = {
       title: movie.title,
-      text: `Check out ${movie.title} on CineVault!`,
+      text: `Check out ${movie.title} on Book My Show!`,
       url: window.location.href,
     };
 
@@ -106,7 +106,7 @@ export default function MovieDetails() {
     <div className="movie-details-page page-wrapper">
       <SEO 
         title={movie.title}
-        description={movie.description?.substring(0, 160) || "Book tickets now on Cinevault"}
+        description={movie.description?.substring(0, 160) || "Book tickets now on Book My Show"}
         image={movie.poster}
         url={`/movie/${movie._id}`}
       />
@@ -161,19 +161,22 @@ export default function MovieDetails() {
 
             <div className="md-action-buttons" style={{ display: "flex", gap: "15px", flexWrap: "wrap", marginTop: "10px" }}>
               {movie.itemType === "premiere" ? (
-                <button
-                  className="btn btn-primary btn-lg md-book-btn"
-                  onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true } })}
-                >
-                  Rent / Buy for Rs. {movie.basePrice || 0}
-                </button>
-              ) : movie.itemType === "event" ? (
-                <button
-                  className="btn btn-primary btn-lg md-book-btn"
-                  onClick={() => navigate(`/select-theatre/${movie._id}`)}
-                >
-                  Book Event
-                </button>
+                <>
+                  <button
+                    className="btn btn-primary btn-lg md-book-btn"
+                    style={{ background: "#F84464" }}
+                    onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: movie.basePrice || 149 } })}
+                  >
+                    Rent for Rs. {movie.basePrice || 149}
+                  </button>
+                  <button
+                    className="btn btn-outline btn-lg md-book-btn"
+                    style={{ borderColor: "white", color: "white" }}
+                    onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: (movie.basePrice || 149) + 400 } })}
+                  >
+                    Buy for Rs. {(movie.basePrice || 149) + 400}
+                  </button>
+                </>
               ) : movie.isNowShowing ? (
                 <button
                   className="btn btn-primary btn-lg md-book-btn"
@@ -328,7 +331,7 @@ export default function MovieDetails() {
                     </div>
                     <div>
                       <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{r.user?.name || "Anonymous"}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>Booked on CineVault</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>Booked on Book My Show</div>
                     </div>
                   </div>
                   <div style={{ color: "var(--clr-error)", fontWeight: "bold", fontSize: "0.9rem" }}>

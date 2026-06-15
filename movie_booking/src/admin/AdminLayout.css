@@ -22,8 +22,10 @@
 .sidebar-logo {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 20px 18px;
+  height: 64px;
+  padding: 0 18px;
   border-bottom: 1px solid var(--clr-border);
   flex-shrink: 0;
 }
@@ -45,13 +47,13 @@
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: var(--clr-text-muted);
-  transition: var(--transition-fast);
+  color: #64748b;
+  transition: all 0.2s ease;
   white-space: nowrap;
   text-decoration: none;
   width: 100%;
@@ -60,14 +62,19 @@
   cursor: pointer;
   font-family: var(--font-body);
 }
-.sidebar-link:hover { background: var(--clr-surface-2); color: var(--clr-text); }
-.sidebar-link-active { background: var(--clr-accent-glow) !important; color: var(--clr-accent) !important; font-weight: 600; border: 1px solid rgba(229,9,20,0.2); }
+.sidebar-link:hover { background: #f1f5f9; color: #0f172a; }
+.sidebar-link-active { 
+  background: #F84464 !important; 
+  color: white !important; 
+  font-weight: 600; 
+  box-shadow: 0 4px 12px rgba(248, 68, 100, 0.25);
+}
 
 .sidebar-icon { font-size: 1.1rem; flex-shrink: 0; }
 
-.sidebar-footer { padding: 8px; border-top: 1px solid var(--clr-border); display: flex; flex-direction: column; gap: 2px; }
-.sidebar-logout { color: var(--clr-error) !important; }
-.sidebar-logout:hover { background: rgba(239,68,68,0.1) !important; }
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--clr-border); display: flex; flex-direction: column; gap: 4px; }
+.sidebar-logout { color: #ef4444 !important; }
+.sidebar-logout:hover { background: #fee2e2 !important; }
 
 /* Main */
 .admin-main { display: flex; flex-direction: column; overflow: hidden; }
@@ -82,7 +89,7 @@
   border-bottom: 1px solid var(--clr-border);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 5; /* Lower than modal overlay */
   flex-shrink: 0;
 }
 
@@ -95,6 +102,9 @@
   font-size: 0.8rem;
   cursor: pointer;
   transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .collapse-btn:hover { color: var(--clr-text); border-color: var(--clr-text-muted); }
 
@@ -195,7 +205,7 @@
   inset: 0;
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(4px);
-  z-index: var(--z-modal);
+  z-index: 9999; /* Ensure modal is always on top of everything */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,23 +243,68 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Tablet: Auto-collapse to icons */
 @media (max-width: 1024px) {
   .admin-shell {
-    grid-template-columns: 64px 1fr; /* Auto-collapse sidebar on tablets */
+    grid-template-columns: 80px 1fr;
   }
   .sidebar-logo .logo-text, .sidebar-link span:not(.sidebar-icon), .sidebar-section-label {
-    display: none; /* Hide text */
+    display: none; 
+  }
+  .sidebar-logo::after {
+    /* Show an icon if the SVG is hidden to prevent empty header */
+    content: "🎬";
+    font-size: 1.5rem;
   }
   .sidebar-link {
     justify-content: center;
-    padding: 12px;
+    padding: 14px 0;
+  }
+  .sidebar-icon {
+    font-size: 1.3rem;
   }
 }
 
+/* Mobile: Off-canvas drawer */
 @media (max-width: 768px) {
   .admin-shell {
-    grid-template-columns: 64px 1fr; /* Keep icons on mobile */
+    display: block; /* Remove grid to allow full width main */
   }
+  
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 999; /* Below modal but above everything else */
+    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+    transition: left 0.3s ease;
+  }
+  
+  /* When NOT collapsed on mobile, show the sidebar */
+  .admin-shell:not(.sidebar-collapsed) .admin-sidebar {
+    left: 0;
+  }
+  
+  /* Reset link styles inside the mobile drawer */
+  .admin-shell:not(.sidebar-collapsed) .sidebar-logo .logo-text, 
+  .admin-shell:not(.sidebar-collapsed) .sidebar-link span:not(.sidebar-icon), 
+  .admin-shell:not(.sidebar-collapsed) .sidebar-section-label {
+    display: block; 
+  }
+  .admin-shell:not(.sidebar-collapsed) .sidebar-logo::after {
+    display: none;
+  }
+  .admin-shell:not(.sidebar-collapsed) .sidebar-link {
+    justify-content: flex-start;
+    padding: 12px 16px;
+  }
+  
+  .admin-main {
+    width: 100%;
+  }
+
   .admin-content {
     padding: 16px;
   }
@@ -258,5 +313,52 @@
   }
   .admin-topbar {
     padding: 0 16px;
+  }
+}
+
+/* Responsive Modal Grids */
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-grid-cast {
+  display: grid;
+  grid-template-columns: 2fr 2fr 3fr auto;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .admin-grid-2, .admin-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .admin-grid-cast {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: flex-end;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--clr-border);
+  }
+  
+  .admin-grid-cast > button:last-child {
+    grid-column: 1 / -1;
+    margin-top: 5px;
+  }
+  
+  .modal-box {
+    padding: 20px;
+    margin: 10px;
+    max-height: 95vh;
   }
 }

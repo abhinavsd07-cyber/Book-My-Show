@@ -79,12 +79,12 @@ export default function ManageTheatres() {
             <h3 className="modal-title">{modal === "add" ? "Add Theatre" : "Edit Theatre"}</h3>
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group"><label className="form-label">Theatre Name *</label><input className="form-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">City / Location *</label><input className="form-input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></div>
                 <div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
               </div>
               <div className="form-group"><label className="form-label">Full Address *</label><input className="form-input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">Total Screens</label><input className="form-input" type="number" min={1} value={form.totalScreens} onChange={(e) => setForm({ ...form, totalScreens: e.target.value })} /></div>
                 <div className="form-group"><label className="form-label">Amenities (comma-separated)</label><input className="form-input" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} placeholder="Dolby, IMAX, Parking" /></div>
               </div>

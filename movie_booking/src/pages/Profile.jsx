@@ -76,7 +76,7 @@ export default function Profile() {
 
   return (
     <div className="profile-page page-wrapper">
-      <SEO title="My Profile" description="Manage your Cinevault account and choose your avatar." url="/profile" />
+      <SEO title="My Profile" description="Manage your Book My Show account and choose your avatar." url="/profile" />
       
       <div className="container">
         <div className="profile-card card">

@@ -5,9 +5,9 @@ export default function AdCarousel({ slides, height, className = "", autoPlayInt
   const [currentIndex, setCurrentIndex] = useState(0);
   const timerRef = useRef(null);
 
-  const nextSlide = () => {
+  const nextSlide = React.useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
@@ -16,7 +16,7 @@ export default function AdCarousel({ slides, height, className = "", autoPlayInt
   useEffect(() => {
     timerRef.current = setInterval(nextSlide, autoPlayInterval);
     return () => clearInterval(timerRef.current);
-  }, [slides.length, autoPlayInterval]);
+  }, [nextSlide, autoPlayInterval]);
 
   if (!slides || slides.length === 0) return null;
 
@@ -30,7 +30,12 @@ export default function AdCarousel({ slides, height, className = "", autoPlayInt
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {slides.map((s, i) => (
-          <div key={i} className="ad-carousel-slide">
+          <div 
+            key={i} 
+            className="ad-carousel-slide" 
+            onClick={() => s.link && window.open(s.link, "_blank")}
+            style={{ cursor: s.link ? "pointer" : "default" }}
+          >
              <img src={s.bg} alt={`Ad ${i}`} className="ad-carousel-img" />
           </div>
         ))}

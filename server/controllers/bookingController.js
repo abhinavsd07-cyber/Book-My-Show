@@ -108,11 +108,15 @@ const createBooking = async (req, res) => {
 
       return res.status(201).json({ success: true, message: "Booking confirmed!", data: populated });
     } else if (itemId) {
-      // It's a Premiere
+      // It's a Premiere or Event
       const item = await Movie.findById(itemId);
       if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
-      totalAmount = item.basePrice;
+      if (item.itemType === "event") {
+        totalAmount = req.body.totalAmount || item.basePrice || 0;
+      } else {
+        totalAmount = item.basePrice || 0;
+      }
       convenienceFee = Math.round(totalAmount * 0.05);
       gst = Math.round(totalAmount * 0.18);
       grandTotal = totalAmount + convenienceFee + gst;
@@ -138,7 +142,7 @@ const createBooking = async (req, res) => {
       const booking = await Booking.create({
         user: req.user._id,
         item: itemId,
-        // no show, no seats
+        seats: seats || [], // events have seats
         totalAmount,
         convenienceFee,
         gst,

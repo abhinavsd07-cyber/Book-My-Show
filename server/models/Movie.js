@@ -20,8 +20,17 @@ const movieSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     itemType: { type: String, enum: ["movie", "event", "premiere"], default: "movie" },
     basePrice: { type: Number, default: 0 },
+    eventTime: { type: String, default: "" },
+    eventLocation: { type: String, default: "" },
+    eventAgeGroups: { type: String, default: "" },
   },
   { timestamps: true }
 );
+
+// Add indexes for frequent queries
+movieSchema.index({ isActive: 1, itemType: 1 });
+movieSchema.index({ isActive: 1, isNowShowing: 1 });
+movieSchema.index({ isActive: 1, isUpcoming: 1 });
+movieSchema.index({ title: 1 }); // for search
 
 module.exports = mongoose.model("Movie", movieSchema);

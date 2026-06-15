@@ -9,14 +9,15 @@ export default function ManageBookings() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const fetch = () => {
+  const fetch = React.useCallback(() => {
     setLoading(true);
     getAllBookingsAdmin(filter !== "all" ? { status: filter } : {})
       .then((r) => setBookings(r.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  };
-  useEffect(() => { fetch(); }, [filter]);
+  }, [filter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { fetch(); }, [fetch]);
 
   const handleCancel = async (id) => {
     if (!window.confirm("Cancel this booking? Seats will be released.")) return;

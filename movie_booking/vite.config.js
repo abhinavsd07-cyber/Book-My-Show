@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'CineVault Ticketing',
-        short_name: 'CineVault',
+        name: 'Book My Show Ticketing',
+        short_name: 'Book My Show',
         description: 'Book your favorite movies and events.',
         theme_color: '#E50914',
         background_color: '#000000',

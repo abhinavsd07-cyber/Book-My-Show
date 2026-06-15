@@ -94,5 +94,6 @@ export const voteReview = (id, data) => axiosInstance.put(`/reviews/${id}/vote`,
 export const getBanners = () => axiosInstance.get("/banners");
 export const getAllAdminBanners = () => axiosInstance.get("/admin/banners");
 export const createBanner = (data) => axiosInstance.post("/banners", data);
+export const updateBanner = (id, data) => axiosInstance.put(`/banners/${id}`, data);
 export const deleteBanner = (id) => axiosInstance.delete(`/banners/${id}`);
 
