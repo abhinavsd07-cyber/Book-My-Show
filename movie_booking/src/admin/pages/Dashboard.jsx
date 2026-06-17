@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Wallet
 } from "lucide-react";
+import { LuWallet, LuTrendingUp, LuUsers } from "react-icons/lu";
 import { 
   AreaChart, 
   Area, 
