@@ -29,6 +29,7 @@ import TicketScanner from "./pages/TicketScanner";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import MyBookings from "./pages/MyBookings";
 import ListYourShow from "./pages/ListYourShow";
+import Corporates from "./pages/Corporates";
 
 // Admin Pages
 import AdminLayout from "./admin/AdminLayout";
@@ -64,6 +65,7 @@ function App() {
           <Route path="/offers" element={<UserLayout><Offers /></UserLayout>} />
           <Route path="/giftcards" element={<UserLayout><GiftCards /></UserLayout>} />
           <Route path="/list-your-show" element={<UserLayout><ListYourShow /></UserLayout>} />
+          <Route path="/corporates" element={<UserLayout><Corporates /></UserLayout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
