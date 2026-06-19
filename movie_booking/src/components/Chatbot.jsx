@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { LuMessageSquare, LuX, LuSend, LuBot } from 'react-icons/lu';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const location = useLocation();
   const [messages, setMessages] = useState([
     { sender: 'bot', text: 'Hi! I am CineBot 🤖. How can I help you today?' }
   ]);
@@ -53,6 +55,10 @@ export default function Chatbot() {
       setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
     }, 600);
   };
+
+  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/staff')) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end">

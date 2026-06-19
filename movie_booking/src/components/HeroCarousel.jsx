@@ -59,14 +59,14 @@ export default function HeroCarousel() {
     return (
       <div
         className={`
-          rounded-xl overflow-hidden shadow-lg flex shrink-0
-          transition-all duration-500 ease-in-out
+          rounded-xl overflow-hidden shadow-lg shrink-0
+          transition-all duration-500 ease-in-out flex flex-col-reverse md:flex-row
           ${slide.bg}
-          ${activeCard ? "w-[850px] h-[260px] opacity-100" : "w-[280px] h-[260px] opacity-60"}
+          ${activeCard ? "w-full max-w-[850px] h-auto md:h-[260px] opacity-100" : "hidden md:flex w-[280px] h-[260px] opacity-60"}
         `}
       >
         {/* Left Side: Content Box */}
-        <div className="w-[52%] min-w-[280px] px-8 py-6 flex flex-col justify-center text-white transition-all duration-500">
+        <div className="w-full md:w-[52%] md:min-w-[280px] px-6 md:px-8 py-6 flex flex-col justify-center text-white transition-all duration-500">
           <h2
             className={`font-bold leading-tight transition-all duration-500 line-clamp-2 ${
               activeCard ? "text-[32px]" : "text-[20px]"
@@ -97,8 +97,8 @@ export default function HeroCarousel() {
 
           {/* Right Side: Image Box (Always rendered, animated via opacity & scale) */}
           <div 
-            className={`w-[48%] h-full overflow-hidden transition-all duration-500 origin-right ${
-              activeCard ? "opacity-100 scale-100" : "opacity-0 scale-95 w-0"
+            className={`w-full md:w-[48%] h-[160px] md:h-full overflow-hidden transition-all duration-500 origin-right ${
+              activeCard ? "opacity-100 scale-100" : "opacity-0 scale-95 md:w-0"
             }`}
           >
             <img
@@ -112,8 +112,8 @@ export default function HeroCarousel() {
   };
 
   return (
-    <section className="bg-[#f1f2f4] py-10 overflow-hidden w-full select-none">
-      <div className="max-w-[1450px] mx-auto relative flex items-center justify-center gap-6 px-12">
+    <section className="bg-[#f1f2f4] py-6 md:py-10 overflow-hidden w-full select-none">
+      <div className="max-w-[1450px] mx-auto relative flex items-center justify-center gap-6 px-4 md:px-12">
         
         {/* Left Preview Slide */}
         <BannerCard slide={slides[prevIndex]} activeCard={false} />
@@ -127,14 +127,14 @@ export default function HeroCarousel() {
         {/* Navigation Controls */}
         <button
           onClick={prevSlide}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 text-white rounded-xl flex items-center justify-center text-3xl hover:bg-black/60 transition-colors z-10"
+          className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 w-10 md:w-12 h-10 md:h-12 bg-black/30 text-white rounded-xl flex items-center justify-center text-2xl md:text-3xl hover:bg-black/60 transition-colors z-10"
         >
           ‹
         </button>
 
         <button
           onClick={nextSlide}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 text-white rounded-xl flex items-center justify-center text-3xl hover:bg-black/60 transition-colors z-10"
+          className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 w-10 md:w-12 h-10 md:h-12 bg-black/30 text-white rounded-xl flex items-center justify-center text-2xl md:text-3xl hover:bg-black/60 transition-colors z-10"
         >
           ›
         </button>
