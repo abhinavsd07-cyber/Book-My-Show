@@ -44,14 +44,13 @@ export default function Home() {
   return (
     <div className="pt-[110px] md:pt-[125px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333]">
       <SEO />
-      {/* ── Top Hero Banner Carousel ── */}
+      {/* ── Top Hero Banner Carousel — full viewport width, no max-w constraint ── */}
       {heroBanners.length > 0 && (
-        <section className="mb-8">
-          <div className="max-w-[1250px] mx-auto px-2 md:px-4 pt-4">
-            <AdCarousel slides={heroBanners} className="rounded-xl shadow-md" />
-          </div>
+        <section className="mb-8 pt-4">
+          <AdCarousel slides={heroBanners} />
         </section>
       )}
+
 
       <div className="max-w-[1200px] mx-auto px-4">
         {/* ── RECOMMENDED MOVIES ── */}
