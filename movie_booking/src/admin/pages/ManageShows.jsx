@@ -641,10 +641,10 @@ export default function ManageShows() {
       {/* ── Modal ── */}
       {modal && (
         <div
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 bg-black/75 backdrop-blur-md z-[9999] flex p-0 sm:p-6 sm:py-12"
           onClick={(e) => e.target === e.currentTarget && setModal(false)}
         >
-          <div className="bg-bms-surface border border-bms-border rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-[620px] max-h-[92vh] overflow-y-auto shadow-2xl animate-slide-up">
+          <div className="bg-bms-surface border border-bms-border rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-[620px] max-h-[90vh] sm:max-h-[85vh] overflow-y-auto shadow-2xl animate-slide-up mt-auto sm:m-auto mx-auto relative">
 
             {/* Modal header */}
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-bms-border">

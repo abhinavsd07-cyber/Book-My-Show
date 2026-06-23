@@ -276,10 +276,10 @@ export default function ManageSnacks() {
       {/* ══════════════════════════════════ MODAL ══════════════════════════════════ */}
       {modal && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex p-0 sm:p-6 sm:py-12"
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[620px] max-h-[92vh] overflow-y-auto animate-slide-up">
+          <div className="bg-white border border-[#e2e2e2] rounded-t-3xl sm:rounded-3xl p-6 md:p-8 shadow-2xl w-full max-w-[620px] max-h-[90vh] sm:max-h-[85vh] overflow-y-auto animate-slide-up mt-auto sm:m-auto mx-auto relative">
 
             {/* Modal header */}
             <div className="flex justify-between items-center px-6 py-5 border-b border-[#e9e9e9]">

@@ -219,8 +219,8 @@ export default function ManageTheatres() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-[9999] flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && close()}>
-          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 md:p-8 w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex p-0 sm:p-6 sm:py-12" onClick={(e) => e.target === e.currentTarget && close()}>
+          <div className="bg-bms-surface border border-bms-border rounded-t-3xl sm:rounded-3xl p-6 md:p-8 w-full max-w-[560px] max-h-[90vh] sm:max-h-[85vh] overflow-y-auto shadow-2xl animate-slide-up mt-auto sm:m-auto mx-auto relative">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-bms-border">
               <h3 className="text-xl font-semibold text-bms-text">{modal === "add" ? "Add Theatre" : "Edit Theatre"}</h3>
               <button onClick={close} className="text-bms-text-dim hover:text-bms-text transition-colors cursor-pointer">
