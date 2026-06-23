@@ -27,6 +27,18 @@ const format12Hour = (timeStr) => {
   return `${padH}:${minStr} ${ampm}`;
 };
 
+const isPastShow = (timeStr, isToday) => {
+  if (!isToday || !timeStr) return false;
+  // If the time string has AM/PM, it's not strictly "HH:MM", but the DB should have "HH:MM".
+  // Fallback if not "HH:MM"
+  if (timeStr.toLowerCase().includes("am") || timeStr.toLowerCase().includes("pm")) return false;
+  const now = new Date();
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  const [hStr, mStr] = timeStr.split(":");
+  const showMins = parseInt(hStr, 10) * 60 + parseInt(mStr, 10);
+  return showMins < currentMins;
+};
+
 export default function TheatreSelection() {
   const { movieId } = useParams();
   const navigate = useNavigate();
@@ -115,7 +127,11 @@ export default function TheatreSelection() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {theatreData.map(({ theatre, shows }) => (
+            {theatreData.map(({ theatre, shows }) => {
+              const validShows = shows.filter(show => !isPastShow(show.time, selectedDate === 0));
+              if (validShows.length === 0) return null;
+
+              return (
               <div key={theatre._id} className="bg-white border-y md:border border-slate-200 md:rounded-[8px] py-5 px-4 md:px-6 flex flex-col md:flex-row gap-6 hover:shadow-sm transition-shadow">
                 {/* Theatre Header */}
                 <div className="w-full md:w-[320px] flex-shrink-0">
@@ -140,7 +156,7 @@ export default function TheatreSelection() {
 
                 {/* Shows List */}
                 <div className="flex-1 flex flex-wrap gap-4 items-center">
-                  {shows.map((show) => (
+                  {validShows.map((show) => (
                     <button
                       key={show._id}
                       className="min-w-[90px] border border-[#4CAF50] text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white rounded-[4px] py-1.5 px-3 text-center cursor-pointer group transition-all duration-200 shadow-sm hover:shadow"
@@ -154,7 +170,7 @@ export default function TheatreSelection() {
                   ))}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>

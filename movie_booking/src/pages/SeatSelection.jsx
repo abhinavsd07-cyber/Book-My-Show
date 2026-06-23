@@ -262,18 +262,36 @@ export default function SeatSelection() {
       {/* ── Time Slots Ribbon ── */}
       <div className="bg-slate-50 border-b border-slate-200 py-3 px-4 mb-8">
         <div className="max-w-[1200px] mx-auto flex items-center gap-3 overflow-x-auto scrollbar-hide">
-          <button className="bg-[#1ea83c] text-white border border-[#1ea83c] px-4 py-1.5 rounded text-xs font-medium whitespace-nowrap cursor-pointer">
-            {format12Hour(show.time)}
-          </button>
-          <button className="bg-white text-slate-700 border border-slate-300 hover:border-[#1ea83c] hover:text-[#1ea83c] px-4 py-1.5 rounded text-xs font-medium whitespace-nowrap cursor-pointer transition-colors">
-            12:25 PM
-          </button>
-          <button className="bg-white text-slate-700 border border-slate-300 hover:border-[#1ea83c] hover:text-[#1ea83c] px-4 py-1.5 rounded text-xs font-medium whitespace-nowrap cursor-pointer transition-colors">
-            03:45 PM
-          </button>
-          <button className="bg-white text-slate-700 border border-slate-300 hover:border-[#1ea83c] hover:text-[#1ea83c] px-4 py-1.5 rounded text-xs font-medium whitespace-nowrap cursor-pointer transition-colors">
-            07:15 PM
-          </button>
+          {(() => {
+            // Include dummy times and the actual show time, then sort chronologically
+            const rawTimes = ["12:25", "15:45", "19:15"];
+            if (show.time && !rawTimes.includes(show.time)) {
+              rawTimes.push(show.time);
+            }
+            
+            // Sort by parsing "HH:MM"
+            const sortedTimes = rawTimes.sort((a, b) => {
+              const [hA, mA] = a.split(":").map(Number);
+              const [hB, mB] = b.split(":").map(Number);
+              return (hA * 60 + mA) - (hB * 60 + mB);
+            });
+
+            return sortedTimes.map((timeStr, idx) => {
+              const isActive = timeStr === show.time;
+              return (
+                <button 
+                  key={idx}
+                  className={`px-4 py-1.5 rounded text-xs font-medium whitespace-nowrap cursor-pointer transition-colors ${
+                    isActive 
+                      ? "bg-[#1ea83c] text-white border border-[#1ea83c]" 
+                      : "bg-white text-slate-700 border border-slate-300 hover:border-[#1ea83c] hover:text-[#1ea83c]"
+                  }`}
+                >
+                  {format12Hour(timeStr)}
+                </button>
+              );
+            });
+          })()}
         </div>
       </div>
 
@@ -327,16 +345,18 @@ export default function SeatSelection() {
                           <div className="w-full text-center text-[11px] md:text-xs font-bold text-slate-500 mb-6 tracking-wide">
                             ₹{seatData.price} {label.toUpperCase()}
                           </div>
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2 w-max mx-auto">
                             {grid.map((row, ri) => (
-                              <div key={ri} className="flex items-center gap-6 justify-center">
+                              <div key={ri} className="flex items-center gap-4 md:gap-6">
                                 <span className="w-4 text-xs font-bold text-slate-600 text-right">{row[0].charAt(0)}</span>
                                 <div className="flex gap-2">
                                     {row.map((seatId) => {
                                       const booked = isBooked(seatId, key);
                                       const locked = lockedByOthers.includes(seatId);
                                       const sel = isSelected(seatId, key);
-                                      const isBestseller = (key === 'premium' || key === 'gold') && (ri === 1 || ri === 2);
+                                      const midLow = Math.floor((rowsCount - 1) / 2);
+                                      const midHigh = Math.floor(rowsCount / 2);
+                                      const isBestseller = ri === midLow || ri === midHigh;
                                       return (
                                         <button
                                           key={seatId}
@@ -367,9 +387,51 @@ export default function SeatSelection() {
                   })()}
                 </div>
 
-                <div className="mt-10 flex flex-col items-center text-center pb-10">
-                  <div className="w-[80%] max-w-[400px] h-2 bg-[#8795a1] rounded-sm mb-4" />
-                  <p className="text-xs font-semibold text-[#8795a1] tracking-[0.2em] uppercase">All eyes this way please!</p>
+                {/* ── Screen indicator — lives OUTSIDE the scroll area so it always centers ── */}
+                <div className="w-full flex flex-col items-center pb-12 pt-6 select-none bg-white">
+                  <div className="w-[70%] max-w-[460px] mx-auto">
+                    <svg viewBox="0 0 480 80" xmlns="http://www.w3.org/2000/svg" className="w-full overflow-visible drop-shadow-[0_8px_24px_rgba(180,210,240,0.5)]">
+                      <defs>
+                        <linearGradient id="screenGlow" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#e8f4ff" stopOpacity="1" />
+                          <stop offset="60%" stopColor="#c8e4f8" stopOpacity="1" />
+                          <stop offset="100%" stopColor="#a8cce8" stopOpacity="0.9" />
+                        </linearGradient>
+                        <linearGradient id="screenBorder" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#b8d8f0" />
+                          <stop offset="100%" stopColor="#90b8d8" />
+                        </linearGradient>
+                        <linearGradient id="screenBase" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#90b8d8" stopOpacity="0.9" />
+                          <stop offset="100%" stopColor="#6898b8" stopOpacity="0.6" />
+                        </linearGradient>
+                        <linearGradient id="screenShine" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="white" stopOpacity="0.9" />
+                          <stop offset="100%" stopColor="white" stopOpacity="0" />
+                        </linearGradient>
+                        <filter id="screenGlowFx" x="-10%" y="-50%" width="120%" height="200%">
+                          <feGaussianBlur stdDeviation="4" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+                      {/* Depth base trapezoid */}
+                      <polygon points="30,12 450,12 470,55 10,55" fill="url(#screenBase)" />
+                      {/* Main illuminated screen face */}
+                      <rect x="18" y="4" width="444" height="46" rx="5" ry="5" fill="url(#screenGlow)" filter="url(#screenGlowFx)" />
+                      {/* Screen border */}
+                      <rect x="18" y="4" width="444" height="46" rx="5" ry="5" fill="none" stroke="url(#screenBorder)" strokeWidth="1.5" />
+                      {/* Top shine reflection */}
+                      <rect x="22" y="6" width="436" height="18" rx="3" fill="url(#screenShine)" opacity="0.7" />
+                      {/* Left edge */}
+                      <polygon points="10,55 30,12 18,12 4,55" fill="#7aadcc" opacity="0.5" />
+                      {/* Right edge */}
+                      <polygon points="450,12 462,12 476,55 470,55" fill="#7aadcc" opacity="0.5" />
+                    </svg>
+                  </div>
+                  <p className="text-[11px] font-medium text-[#8795a1] tracking-widest mt-3">All eyes this way please</p>
                 </div>
               </>
             )}

@@ -775,6 +775,7 @@ export default function ManageShows() {
                   <Field label="Gold (₹)" labelClass="text-amber-400">
                     <Input
                       type="number"
+                      min="0"
                       value={form.goldPrice}
                       onChange={(e) => setForm({ ...form, goldPrice: e.target.value })}
                     />
@@ -782,6 +783,7 @@ export default function ManageShows() {
                   <Field label="Platinum (₹)" labelClass="text-slate-300">
                     <Input
                       type="number"
+                      min="0"
                       value={form.platinumPrice}
                       onChange={(e) => setForm({ ...form, platinumPrice: e.target.value })}
                     />
@@ -789,6 +791,7 @@ export default function ManageShows() {
                   <Field label="Recliner (₹)" labelClass="text-rose-400">
                     <Input
                       type="number"
+                      min="0"
                       value={form.reclinerPrice}
                       onChange={(e) => setForm({ ...form, reclinerPrice: e.target.value })}
                     />

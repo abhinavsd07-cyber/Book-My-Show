@@ -223,7 +223,7 @@ export default function MovieDetails() {
 
             <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-4 mt-4 items-center justify-center md:justify-start">
               {movie.itemType === "premiere" ? (
-                <>
+                <div className="fixed bottom-0 left-0 w-full p-4 bg-bms-surface border-t border-bms-border z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto flex flex-col sm:flex-row gap-3">
                   <button
                     className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-10 py-3.5 text-[15px] font-semibold rounded-[8px] shadow-lg transition-all duration-200"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: movie.basePrice || 149 } })}
@@ -231,19 +231,21 @@ export default function MovieDetails() {
                     Rent for Rs. {movie.basePrice || 149}
                   </button>
                   <button
-                    className="w-full sm:w-auto bg-transparent border border-white/40 hover:bg-white/10 text-white px-10 py-3.5 text-[15px] font-semibold rounded-[8px] transition-colors"
+                    className="w-full sm:w-auto bg-slate-800 sm:bg-transparent border border-slate-700 sm:border-white/40 hover:bg-slate-700 sm:hover:bg-white/10 text-white px-10 py-3.5 text-[15px] font-semibold rounded-[8px] transition-colors"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: (movie.basePrice || 149) + 400 } })}
                   >
                     Buy for Rs. {(movie.basePrice || 149) + 400}
                   </button>
-                </>
+                </div>
               ) : movie.isNowShowing ? (
-                <button
-                  className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-12 py-3.5 text-[16px] font-semibold rounded-[8px] shadow-lg transition-all"
-                  onClick={() => navigate(`/select-theatre/${movie._id}`)}
-                >
-                  Book tickets
-                </button>
+                <div className="fixed bottom-0 left-0 w-full p-3 bg-bms-surface border-t border-bms-border z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto">
+                  <button
+                    className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-12 py-3.5 text-[16px] font-semibold rounded-[8px] shadow-lg transition-all"
+                    onClick={() => navigate(`/select-theatre/${movie._id}`)}
+                  >
+                    Book tickets
+                  </button>
+                </div>
               ) : null}
 
               {movie.trailer && (

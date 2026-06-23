@@ -393,6 +393,7 @@ export default function ManageMovies() {
                     <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Base Price / Ticket Price (Rs.) *</label>
                     <input 
                       type="number" 
+                      min="0"
                       className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
                       value={form.basePrice} 
                       onChange={(e) => setForm({ ...form, basePrice: e.target.value })} 

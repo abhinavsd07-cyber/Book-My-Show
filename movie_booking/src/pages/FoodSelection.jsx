@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAllFoodItems } from "../config/allApis";
-
+import { toast } from "react-toastify";
 
 const TABS = ["All", "Bestsellers", "Popcorn", "Beverages", "Snacks", "Combos"];
 
@@ -24,7 +24,15 @@ export default function FoodSelection() {
       .finally(() => setMenuLoading(false));
   }, []);
 
-  const handleAdd = (id) => setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+  const handleAdd = (id) => setCart(prev => {
+    if ((prev[id] || 0) >= 20) {
+      toast.warning("Maximum 20 items allowed per selection.", {
+        position: "top-right", autoClose: 2000, theme: "light"
+      });
+      return prev;
+    }
+    return { ...prev, [id]: (prev[id] || 0) + 1 };
+  });
   const handleRemove = (id) => setCart(prev => {
     const n = { ...prev };
     if (n[id] > 1) n[id] -= 1; else delete n[id];

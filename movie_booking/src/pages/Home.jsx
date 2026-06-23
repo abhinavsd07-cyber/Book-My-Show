@@ -26,8 +26,21 @@ export default function Home() {
       Promise.all([getNowShowing({ location }), getUpcoming(), getPremieres(), getEvents({ location }), getBanners()])
         .then(([m, u, p, e, b]) => { 
           if(active) {
-            setMovies(m.data.data); 
-            setUpcoming(u.data.data);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // strictly enforce chronological logic regardless of admin flags
+            const validNowShowing = m.data.data.filter(movie => {
+              if (!movie.releaseDate) return true;
+              return new Date(movie.releaseDate) <= today;
+            });
+            const validUpcoming = u.data.data.filter(movie => {
+              if (!movie.releaseDate) return true;
+              return new Date(movie.releaseDate) > today;
+            });
+
+            setMovies(validNowShowing); 
+            setUpcoming(validUpcoming);
             setPremieres(p.data.data); 
             setEvents(e.data.data); 
             

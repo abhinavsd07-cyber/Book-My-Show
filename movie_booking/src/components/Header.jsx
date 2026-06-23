@@ -202,7 +202,7 @@ const Header = () => {
       </div>
 
       {/* Secondary Bottom Bar (Desktop Only) */}
-      <div className="py-2 bg-bms-surface/50 border-b border-bms-border hidden md:block">
+      <div className="py-2 bg-[#F5F5F5] dark:bg-bms-subheader border-b border-bms-border hidden md:block">
         <div className="container px-4 flex justify-between items-center overflow-x-auto scrollbar-none">
           <nav className="flex items-center gap-7">
             {navLinksMain.map((link) => (
