@@ -24,17 +24,45 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
     
     // Fetch Images for inline embedding to bypass Gmail Spam blocking
     let posterBuffer;
+    let posterContentType = 'image/jpeg';
+    let posterExt = 'jpg';
     try {
-      const pRes = await fetch(posterUrl);
-      posterBuffer = await pRes.buffer();
+      const pRes = await fetch(posterUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      if (pRes.ok) {
+        posterContentType = pRes.headers.get('content-type');
+        if (!posterContentType || posterContentType === 'application/octet-stream') {
+           if (posterUrl.toLowerCase().includes('.webp')) {
+             posterContentType = 'image/webp';
+             posterExt = 'webp';
+           } else if (posterUrl.toLowerCase().includes('.png')) {
+             posterContentType = 'image/png';
+             posterExt = 'png';
+           }
+        } else {
+           posterExt = posterContentType.split('/')[1] || 'jpg';
+           // Handle edge cases like svg+xml
+           if (posterExt.includes('+')) posterExt = posterExt.split('+')[0];
+        }
+        posterBuffer = await pRes.buffer();
+      } else {
+        console.log("Poster fetch failed:", pRes.status);
+      }
     } catch (e) {
       console.log("Failed to fetch poster for email embed", e);
     }
     
     let qrBuffer;
     try {
-      const qRes = await fetch(`https://quickchart.io/qr?text=${bookingDetails.bookingId}&size=150&margin=1`);
-      qrBuffer = await qRes.buffer();
+      const qRes = await fetch(`https://quickchart.io/qr?text=${bookingDetails.bookingId}&size=150&margin=1`, {
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      if (qRes.ok) {
+        qrBuffer = await qRes.buffer();
+      } else {
+        console.log("QR fetch failed:", qRes.status);
+      }
     } catch (e) {
       console.log("Failed to fetch QR for email embed", e);
     }
@@ -140,8 +168,9 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
     const attachments = [];
     if (posterBuffer) {
       attachments.push({
-        filename: "poster.jpg",
+        filename: `poster.${posterExt}`,
         content: posterBuffer,
+        contentType: posterContentType,
         cid: "posterImage"
       });
     }
@@ -149,6 +178,7 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
       attachments.push({
         filename: "qrcode.png",
         content: qrBuffer,
+        contentType: "image/png",
         cid: "qrCodeImage"
       });
     }
