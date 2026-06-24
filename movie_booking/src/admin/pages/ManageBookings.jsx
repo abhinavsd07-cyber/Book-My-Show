@@ -181,8 +181,15 @@ export default function ManageBookings() {
 
                         {/* User */}
                         <td className="px-5 py-4">
-                          <p className="font-semibold text-sm leading-tight whitespace-nowrap">{b.user?.name}</p>
-                          <p className="text-[11px] text-bms-text-dim mt-0.5">{b.user?.email}</p>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-bms-accent text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm leading-tight whitespace-nowrap">{b.user?.name || "Guest"}</p>
+                              <p className="text-[11px] text-bms-text-dim mt-0.5 truncate">{b.user?.email || "—"}</p>
+                            </div>
+                          </div>
                         </td>
 
                         {/* Movie */}
@@ -281,11 +288,14 @@ export default function ManageBookings() {
                     </div>
 
                     {/* User */}
-                    <div className="flex items-center gap-2 text-xs text-bms-text-dim">
-                      <LuUser size={11} className="flex-shrink-0" />
-                      <span className="font-semibold text-bms-text whitespace-nowrap">{b.user?.name}</span>
-                      <span>·</span>
-                      <span className="truncate">{b.user?.email}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-bms-accent text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                        {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-semibold text-bms-text truncate">{b.user?.name || "Guest"}</span>
+                        <span className="text-[10px] text-bms-text-dim truncate">{b.user?.email || "—"}</span>
+                      </div>
                     </div>
 
                     {/* Show info */}
