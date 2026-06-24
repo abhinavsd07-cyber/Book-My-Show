@@ -24,7 +24,8 @@ const register = async (req, res) => {
     const user = await User.create({ name, email, password, phone });
 
     // Asynchronously send login notification since registration auto-logs them in
-    sendLoginSuccessEmail(user.email, user.name);
+    // Send Login Success Email asynchronously (we still await it to ensure delivery before serverless execution drops)
+    await sendLoginSuccessEmail(user.email, user.name);
 
     res.status(201).json({
       success: true,
@@ -55,7 +56,8 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
 
     // Asynchronously send login notification email
-    sendLoginSuccessEmail(user.email, user.name);
+    // Send Login Success Email asynchronously
+    await sendLoginSuccessEmail(user.email, user.name);
 
     res.json({
       success: true,
