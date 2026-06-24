@@ -29,6 +29,7 @@ export default function PaymentSuccess() {
     if (posterImg && movie?.poster) {
       try {
         const res = await window.fetch(`${BASE_URL}/proxy-image?url=${encodeURIComponent(movie.poster)}`);
+        if (!res.ok) throw new Error(`Proxy failed with status: ${res.status}`);
         const blob = await res.blob();
         const base64data = await new Promise(resolve => {
           const reader = new FileReader();

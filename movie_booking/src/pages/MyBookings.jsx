@@ -45,6 +45,7 @@ export default function MyBookings() {
     if (posterImg && posterUrl) {
       try {
         const res = await window.fetch(`${BASE_URL}/proxy-image?url=${encodeURIComponent(posterUrl)}`);
+        if (!res.ok) throw new Error(`Proxy failed with status: ${res.status}`);
         const blob = await res.blob();
         const base64data = await new Promise(resolve => {
           const reader = new FileReader();
