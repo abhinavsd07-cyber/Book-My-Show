@@ -9,6 +9,7 @@ export const googleLoginUser = (data) => axiosInstance.post("/auth/google", data
 export const getProfile = () => axiosInstance.get("/auth/profile");
 export const updateProfile = (data) => axiosInstance.put("/auth/profile", data);
 export const forgotPassword = (data) => axiosInstance.post("/auth/forgotpassword", data);
+export const verifyOtp = (token) => axiosInstance.post(`/auth/verifyotp/${token}`);
 export const resetPassword = (token, data) => axiosInstance.put(`/auth/resetpassword/${token}`, data);
 
 // ─────────────────────────────────────────────

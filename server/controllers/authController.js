@@ -204,4 +204,26 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, getProfile, updateProfile, forgotPassword, resetPassword };
+// @POST /api/auth/verifyotp/:token
+const verifyOtp = async (req, res) => {
+  try {
+    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
+
+    // Extend expiry by 5 minutes so they have time to type the new password
+    user.resetPasswordExpire = Date.now() + 5 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    res.json({ success: true, message: "OTP verified successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { register, login, googleLogin, getProfile, updateProfile, forgotPassword, resetPassword, verifyOtp };
