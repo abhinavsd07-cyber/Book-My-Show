@@ -36,6 +36,8 @@ export default function PaymentSuccess() {
           reader.readAsDataURL(blob);
         });
         posterImg.src = base64data;
+        // Guarantee the browser paints the new image src before taking the snapshot
+        await new Promise(r => setTimeout(r, 150));
       } catch (err) {
         console.error("Failed to fetch proxy image as base64", err);
       }
@@ -259,9 +261,9 @@ END:VCALENDAR`;
             {/* Perforated Vertical Divider */}
             <div className="border-r border-dashed border-slate-800 my-1 relative">
               {/* Top notch */}
-              <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-[#0e101c] rounded-full border border-slate-800"></div>
+              <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
               {/* Bottom notch */}
-              <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-[#0e101c] rounded-full border border-slate-800"></div>
+              <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
             </div>
 
             {/* Ticket Right (Details) */}

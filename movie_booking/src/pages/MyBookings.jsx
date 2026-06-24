@@ -36,8 +36,8 @@ export default function MyBookings() {
     }
   };
 
-  const handleDownload = async (id, title, posterUrl) => {
-    const element = document.getElementById(`ticket-${id}`);
+  const handleDownload = async (bookingId, title, posterUrl) => {
+    const element = document.getElementById(`ticket-${bookingId}`);
     if (!element) return;
     
     // Convert poster to base64 to bypass any html2canvas taint/CORS issues
@@ -52,14 +52,14 @@ export default function MyBookings() {
           reader.readAsDataURL(blob);
         });
         posterImg.src = base64data;
+        // Guarantee the browser paints the new image src before taking the snapshot
+        await new Promise(r => setTimeout(r, 150));
       } catch (err) {
         console.error("Failed to fetch proxy image as base64", err);
       }
     }
 
-    element.style.position = "static";
-    element.style.visibility = "visible";
-    element.style.zIndex = "-1";
+    // Removed layout-breaking position: static overrides
 
     try {
       // Wait for all images to finish loading to ensure they are rendered in the PDF
@@ -77,17 +77,13 @@ export default function MyBookings() {
       });
       await Promise.all(promises);
 
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.setFillColor(245, 245, 245);
-      pdf.rect(0, 0, pdfWidth, pdfHeight + 20, "F");
-      
-      pdf.addImage(imgData, "PNG", 10, 10, pdfWidth - 20, pdfHeight - 20);
-      pdf.save(`cineBook_Ticket_${title.replace(/\s+/g, '_')}.pdf`);
+      const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#12121E", useCORS: true });
+      const img = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a5");
+      const w = pdf.internal.pageSize.getWidth() - 20;
+      const h = (canvas.height * w) / canvas.width;
+      pdf.addImage(img, "PNG", 10, 10, w, h);
+      pdf.save(`cineBook_${bookingId}.pdf`);
     } catch (err) {
       console.error("PDF Generation failed", err);
     } finally {
@@ -245,7 +241,7 @@ export default function MyBookings() {
 
                     {b.status === "confirmed" && (
                       <div className="flex gap-3 mt-4">
-                        <button className="flex-1 border border-green-500/20 bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-colors duration-150" onClick={() => handleDownload(b._id, title, poster)}>
+                        <button className="flex-1 border border-green-500/20 bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-colors duration-150" onClick={() => handleDownload(b.bookingId || b._id, title, poster)}>
                           <LuDownload size={14} /> Save PDF
                         </button>
                         {!isPremiere && (
@@ -272,18 +268,12 @@ export default function MyBookings() {
                   </div>
 
                   {/* Hidden PDF Ticket Template */}
-                  <div 
-                    id={`ticket-${b._id}`} 
-                    style={{ 
-                      position: "absolute", 
-                      visibility: "hidden", 
-                      pointerEvents: "none", 
-                      width: "580px", 
-                      background: "#11131e", 
-                      fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-                    }}
-                  >
-                    <div className="flex text-slate-300 border border-slate-800/80 p-6 relative bg-[#11131e] text-left">
+                  <div style={{ position: "absolute", left: "-9999px", top: "0", pointerEvents: "none", width: "580px" }}>
+                    <div 
+                      id={`ticket-${b.bookingId || b._id}`} 
+                      className="flex text-slate-300 border border-slate-800/80 p-6 relative bg-[#11131e] text-left"
+                      style={{ width: "580px", fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" }}
+                    >
                       {/* Ticket Left (Movie Info) */}
                       <div className="w-[43%] pr-6 flex flex-col gap-4 relative">
                         <div className="text-[12px] font-bold uppercase tracking-widest text-[#F84464] flex items-center gap-1.5 font-sans">
@@ -310,9 +300,9 @@ export default function MyBookings() {
                       {/* Perforated Vertical Divider */}
                       <div className="border-r border-dashed border-slate-800 my-1 relative">
                         {/* Top notch */}
-                        <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-bms-bg rounded-full border border-slate-800"></div>
+                        <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
                         {/* Bottom notch */}
-                        <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-bms-bg rounded-full border border-slate-800"></div>
+                        <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
                       </div>
 
                       {/* Ticket Right (Details) */}
