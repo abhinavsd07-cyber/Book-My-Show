@@ -12,7 +12,7 @@ const { getShowsByMovie, getShowById, getAllShows, createShow, updateShow, delet
 const { createBooking, getUserBookings, getBookingById, cancelBooking, getAllBookings } = require("../controllers/bookingController");
 const { createPaymentIntent } = require("../controllers/paymentController");
 const { getDashboardStats, getRevenueByMonth, getAllUsers } = require("../controllers/adminController");
-const { uploadImage } = require("../controllers/uploadController");
+const { uploadImage, proxyImage } = require("../controllers/uploadController");
 const { getBanners, getAllAdminBanners, createBanner, updateBanner, deleteBanner } = require("../controllers/bannerController");
 const { getMovieReviews, createReview, voteReview } = require("../controllers/reviewController");
 const { validateCoupon } = require("../controllers/couponController");
@@ -23,6 +23,7 @@ const upload = require("../middleware/uploadMiddleware");
 //  UPLOAD ROUTES
 // ─────────────────────────────────────────────
 router.post("/upload", protect, adminOnly, upload.single("image"), uploadImage);
+router.get("/proxy-image", proxyImage);
 
 // ─────────────────────────────────────────────
 //  AUTH ROUTES

@@ -2,9 +2,10 @@ import SEO from "../components/SEO";
 import React, { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import { LuCircleCheck, LuFilm, LuDownload, LuTicket, LuHouse, LuCalendar } from "react-icons/lu";
 import { QRCodeCanvas } from 'qrcode.react';
+import BASE_URL from "../config/baseUrl";
 
 export default function PaymentSuccess() {
   const location = useLocation();
@@ -22,6 +23,39 @@ export default function PaymentSuccess() {
   const downloadTicket = async () => {
     const el = ticketRef.current;
     if (!el) return;
+
+    // Convert poster to base64 to bypass any html2canvas taint/CORS issues
+    const posterImg = el.querySelector(".pdf-poster-img");
+    if (posterImg && movie?.poster) {
+      try {
+        const res = await window.fetch(`${BASE_URL}/proxy-image?url=${encodeURIComponent(movie.poster)}`);
+        const blob = await res.blob();
+        const base64data = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        posterImg.src = base64data;
+      } catch (err) {
+        console.error("Failed to fetch proxy image as base64", err);
+      }
+    }
+
+    // Wait for all images to finish loading to ensure they are rendered in the PDF
+    const imgs = el.querySelectorAll("img");
+    const promises = [];
+    imgs.forEach((img) => {
+      if (!img.complete) {
+        promises.push(
+          new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          })
+        );
+      }
+    });
+    await Promise.all(promises);
+
     const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#12121E", useCORS: true });
     const img = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a5");
@@ -90,72 +124,74 @@ END:VCALENDAR`;
           <div className="bg-bms-accent-glow text-bms-accent border border-bms-accent/20 px-3.5 py-1 rounded-full text-xs font-bold mt-2">Booking ID: <strong>{booking.bookingId}</strong></div>
         </div>
 
-        {/* Ticket */}
-        <div className="w-full max-w-[500px] mb-8 animate-slide-up" ref={ticketRef}>
-          <div className="flex bg-[#12121E] text-white rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+        {/* Visible Ticket (Responsive on screen) */}
+        <div className="w-full max-w-[580px] mb-8 animate-slide-up">
+          <div className="flex bg-[#11131e] text-slate-300 rounded-3xl overflow-hidden shadow-2xl border border-slate-800/80 p-6 relative">
             {/* Ticket Left (Movie Info) */}
-            <div className="w-[45%] p-5 border-r border-dashed border-white/10 flex flex-col gap-4 relative">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-bms-accent flex items-center gap-1"><LuFilm /> cineBook</div>
+            <div className="w-[43%] pr-6 flex flex-col gap-4 relative">
+              <div className="text-[12px] font-bold uppercase tracking-widest text-[#F84464] flex items-center gap-1.5 font-sans">
+                <LuTicket size={16} className="fill-[#F84464]/20" /> CINEBOOK
+              </div>
 
-              <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-lg shadow-md" />
+              <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-xl shadow-md border border-slate-800/40" crossOrigin="anonymous" />
 
-              <div className="flex flex-col gap-1.5">
-                <h2 className="text-xs md:text-sm font-semibold line-clamp-2 leading-snug">{movie?.title}</h2>
-                <div className="flex flex-wrap gap-1">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-sm font-extrabold text-white line-clamp-2 leading-snug tracking-wide">{movie?.title}</h2>
+                <div className="flex flex-wrap gap-1.5">
                   {movie?.genre?.slice(0, 2).map((g) => (
-                    <span key={g} className="bg-white/10 border border-white/20 text-white px-2 py-0.5 text-[8px] font-semibold uppercase rounded-md tracking-wider">{g}</span>
+                    <span key={g} className="bg-[#1d1d35] border border-[#3c3e66] text-[#9fa4fc] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{g}</span>
                   ))}
-                  {show?.format && <span className="bg-[#4F46E5]/20 border border-[#4F46E5]/40 text-[#818CF8] px-2 py-0.5 text-[8px] font-semibold uppercase rounded-md tracking-wider">{show.format}</span>}
+                  {show?.format && <span className="bg-[#4F46E5]/20 border border-[#4F46E5]/40 text-[#818CF8] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{show.format}</span>}
                 </div>
               </div>
             </div>
 
+            {/* Perforated Vertical Divider */}
+            <div className="border-r border-dashed border-slate-800 my-1 relative">
+              {/* Top notch */}
+              <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-bms-bg rounded-full border border-slate-800"></div>
+              {/* Bottom notch */}
+              <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-bms-bg rounded-full border border-slate-800"></div>
+            </div>
+
             {/* Ticket Right (Details) */}
-            <div className="flex-1 p-5 flex flex-col justify-between gap-4">
+            <div className="flex-1 pl-6 flex flex-col justify-between gap-4">
               {isPremiere ? (
                 <div className="flex flex-col gap-4">
-                  <div className="flex justify-between gap-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Access</span>
-                      <span className="text-xs font-bold text-white">Lifetime Rental</span>
-                    </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Access</span>
+                    <span className="text-xs font-bold text-white">Lifetime Rental</span>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date Purchased</span>
-                      <span className="text-xs font-bold text-white">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                    </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date Purchased</span>
+                    <span className="text-xs font-bold text-white">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-between gap-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Theatre</span>
-                      <span className="text-xs font-bold text-white truncate max-w-[120px]">{theatre?.name}</span>
-                    </div>
-                    <div className="flex flex-col gap-0.5 text-right">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Screen</span>
-                      <span className="text-xs font-bold text-white">{show?.screen || "1"}</span>
-                    </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+                  <div className="flex flex-col gap-0.5 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">THEATRE</span>
+                    <span className="text-xs font-bold text-white truncate max-w-[150px]">{theatre?.name}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SCREEN</span>
+                    <span className="text-xs font-bold text-white">{show?.screen || "Screen 1"}</span>
                   </div>
 
-                  <div className="flex justify-between gap-4">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date</span>
-                      <span className="text-xs font-bold text-white">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                    </div>
-                    <div className="flex flex-col gap-0.5 text-right">
-                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Time</span>
-                      <span className="text-xs font-bold text-white">{show?.time}</span>
-                    </div>
+                  <div className="flex flex-col gap-0.5 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">DATE</span>
+                    <span className="text-xs font-bold text-white">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">TIME</span>
+                    <span className="text-xs font-bold text-white">{show?.time}</span>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Seats</span>
+                  <div className="col-span-2 flex flex-col gap-1 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SEATS</span>
                     <div className="flex flex-wrap gap-1.5">
                       {booking.seats?.map((s) => (
-                        <span key={s.seatNumber} className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-bold border border-white/10 uppercase">
+                        <span key={s.seatNumber} className="px-2.5 py-0.5 bg-[#1d1d35] border border-[#3c3e66] text-white font-mono font-bold text-[9px] rounded-md tracking-wider uppercase">
                           {s.seatNumber}
                         </span>
                       ))}
@@ -164,34 +200,145 @@ END:VCALENDAR`;
                 </div>
               )}
 
-              <div className="flex justify-between items-end border-t border-white/10 pt-3">
-                <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Amount Paid</span>
-                <span className="text-base font-bold text-bms-accent">₹{booking.grandTotal}</span>
+              <div className="border-t border-[#2b2d42] pt-3 mt-1 flex justify-between items-center text-left">
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">AMOUNT PAID</span>
+                <span className="text-2xl font-extrabold text-[#F84464]">₹{booking.grandTotal}</span>
               </div>
+              
               {/* Tax breakdown */}
               {booking.grandTotal > 0 && (
-                <div className="border-t border-white/10 pt-2 mt-1 flex flex-col gap-0.5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[8px] uppercase tracking-wider text-slate-500">CGST (9%)</span>
-                    <span className="text-[9px] text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                <div className="border-t border-[#2b2d42] pt-2 mt-1 flex flex-col gap-1 text-left">
+                  <div className="flex justify-between items-center text-[9px]">
+                    <span className="text-slate-500 font-medium">CGST (9%)</span>
+                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[8px] uppercase tracking-wider text-slate-500">SGST (9%)</span>
-                    <span className="text-[9px] text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  <div className="flex justify-between items-center text-[9px]">
+                    <span className="text-slate-500 font-medium">SGST (9%)</span>
+                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-white/10 pt-1 mt-0.5">
-                    <span className="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Total GST (18%)</span>
-                    <span className="text-[9px] text-slate-300 font-bold">₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
+                  <div className="flex justify-between items-center border-t border-[#2b2d42] pt-1.5 mt-0.5 text-[9px]">
+                    <span className="text-slate-400 font-bold">TOTAL GST (18%)</span>
+                    <span className="text-slate-300 font-bold">₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
                   </div>
                 </div>
               )}
 
               {/* QR Code */}
-              <div className="flex flex-col items-center gap-1.5 mt-2">
-                <div className="bg-white p-2 rounded-lg border border-white/10">
-                  <QRCodeCanvas value={booking.bookingId} size={80} level="H" />
+              <div className="flex flex-col items-center gap-1.5 mt-1 pt-3 border-t border-[#2b2d42]/50">
+                <div className="bg-white p-2 rounded-xl shadow-md inline-block">
+                  <QRCodeCanvas value={booking.bookingId} size={90} level="H" />
                 </div>
-                <span className="text-[9px] text-white/50 font-mono select-all">{booking.bookingId}</span>
+                <span className="text-[9px] text-slate-400 font-mono font-bold tracking-wider uppercase select-all">{booking.bookingId}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Hidden Ticket Clone for PDF Generation (Fixed size 580px) */}
+        <div style={{ position: "absolute", left: "-9999px", top: 0, width: "580px", pointerEvents: "none" }}>
+          <div ref={ticketRef} className="flex bg-[#11131e] text-slate-300 border border-slate-800/80 p-6 relative text-left" style={{ width: "580px" }}>
+            {/* Ticket Left (Movie Info) */}
+            <div className="w-[43%] pr-6 flex flex-col gap-4 relative">
+              <div className="text-[12px] font-bold uppercase tracking-widest text-[#F84464] flex items-center gap-1.5 font-sans">
+                <LuTicket size={16} className="fill-[#F84464]/20" /> CINEBOOK
+              </div>
+
+              <img src={movie?.poster ? `${BASE_URL}/proxy-image?url=${encodeURIComponent(movie.poster)}` : ""} alt={movie?.title} className="pdf-poster-img w-full aspect-[2/3] object-cover rounded-xl shadow-md border border-slate-800/40" crossOrigin="anonymous" />
+
+              <div className="flex flex-col gap-2">
+                <h2 className="text-sm font-extrabold text-white line-clamp-2 leading-snug tracking-wide">{movie?.title}</h2>
+                <div className="flex flex-wrap gap-1.5">
+                  {movie?.genre?.slice(0, 2).map((g) => (
+                    <span key={g} className="bg-[#1d1d35] border border-[#3c3e66] text-[#9fa4fc] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{g}</span>
+                  ))}
+                  {show?.format && <span className="bg-[#4F46E5]/20 border border-[#4F46E5]/40 text-[#818CF8] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{show.format}</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Perforated Vertical Divider */}
+            <div className="border-r border-dashed border-slate-800 my-1 relative">
+              {/* Top notch */}
+              <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-[#0e101c] rounded-full border border-slate-800"></div>
+              {/* Bottom notch */}
+              <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-[#0e101c] rounded-full border border-slate-800"></div>
+            </div>
+
+            {/* Ticket Right (Details) */}
+            <div className="flex-1 pl-6 flex flex-col justify-between gap-4">
+              {isPremiere ? (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Access</span>
+                    <span className="text-xs font-bold text-white">Lifetime Rental</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date Purchased</span>
+                    <span className="text-xs font-bold text-white">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">THEATRE</span>
+                    <span className="text-xs font-bold text-white truncate max-w-[150px]">{theatre?.name}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SCREEN</span>
+                    <span className="text-xs font-bold text-white">{show?.screen || "Screen 1"}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">DATE</span>
+                    <span className="text-xs font-bold text-white">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">TIME</span>
+                    <span className="text-xs font-bold text-white">{show?.time}</span>
+                  </div>
+
+                  <div className="col-span-2 flex flex-col gap-1">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SEATS</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {booking.seats?.map((s) => (
+                        <span key={s.seatNumber} className="px-2.5 py-0.5 bg-[#1d1d35] border border-[#3c3e66] text-white font-mono font-bold text-[9px] rounded-md tracking-wider uppercase">
+                          {s.seatNumber}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t border-[#2b2d42] pt-3 mt-1 flex justify-between items-center">
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">AMOUNT PAID</span>
+                <span className="text-2xl font-extrabold text-[#F84464]">₹{booking.grandTotal}</span>
+              </div>
+              
+              {/* Tax breakdown */}
+              {booking.grandTotal > 0 && (
+                <div className="border-t border-[#2b2d42] pt-2 mt-1 flex flex-col gap-1">
+                  <div className="flex justify-between items-center text-[9px]">
+                    <span className="text-slate-500 font-medium">CGST (9%)</span>
+                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[9px]">
+                    <span className="text-slate-500 font-medium">SGST (9%)</span>
+                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-[#2b2d42] pt-1.5 mt-0.5 text-[9px]">
+                    <span className="text-slate-400 font-bold">TOTAL GST (18%)</span>
+                    <span className="text-slate-300 font-bold">₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* QR Code */}
+              <div className="flex flex-col items-center gap-1.5 mt-1 pt-3 border-t border-[#2b2d42]/50">
+                <div className="bg-white p-2 rounded-xl shadow-md inline-block">
+                  <QRCodeCanvas value={booking.bookingId} size={90} level="H" />
+                </div>
+                <span className="text-[9px] text-slate-400 font-mono font-bold tracking-wider uppercase">{booking.bookingId}</span>
               </div>
             </div>
           </div>
