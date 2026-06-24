@@ -53,7 +53,7 @@ export default function MyBookings() {
       pdf.rect(0, 0, pdfWidth, pdfHeight + 20, "F");
       
       pdf.addImage(imgData, "PNG", 10, 10, pdfWidth - 20, pdfHeight - 20);
-      pdf.save(`Book_My_Show_Ticket_${title.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`cineBook_Ticket_${title.replace(/\s+/g, '_')}.pdf`);
     } catch (err) {
       console.error("PDF Generation failed", err);
     } finally {
@@ -95,7 +95,7 @@ export default function MyBookings() {
       const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
-      link.setAttribute("download", `Book_My_Show_${title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`);
+      link.setAttribute("download", `cineBook_${title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

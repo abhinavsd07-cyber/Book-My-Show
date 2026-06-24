@@ -241,6 +241,27 @@ const cancelBooking = async (req, res) => {
       }
     }
 
+    // Trigger Stripe Refund if stripePaymentIntentId is present
+    if (booking.stripePaymentIntentId) {
+      try {
+        const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+        await stripe.refunds.create({
+          payment_intent: booking.stripePaymentIntentId,
+        });
+      } catch (stripeError) {
+        console.error("Stripe refund failed or already processed:", stripeError.message);
+      }
+    }
+
+    // Refund loyalty CineCoins balance to the user and deduct earned coins
+    const User = require("../models/User");
+    const user = await User.findById(booking.user);
+    if (user) {
+      user.cineCoins = user.cineCoins + (booking.coinsUsed || 0) - (booking.coinsEarned || 0);
+      if (user.cineCoins < 0) user.cineCoins = 0;
+      await user.save();
+    }
+
     booking.status = "cancelled";
     booking.stripeStatus = "refunded";
     booking.cancelledAt = new Date();
