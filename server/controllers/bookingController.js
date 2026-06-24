@@ -213,7 +213,7 @@ const cancelBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id).populate("show");
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
-    if (booking.user.toString() !== req.user._id.toString())
+    if (booking.user.toString() !== req.user._id.toString() && req.user.role !== "admin")
       return res.status(403).json({ success: false, message: "Not authorized" });
     if (booking.status === "cancelled")
       return res.status(400).json({ success: false, message: "Booking already cancelled" });
