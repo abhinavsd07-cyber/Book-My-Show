@@ -23,7 +23,7 @@ export const POPULAR_CITIES = [
 const Header = () => {
   const { user, logout } = useAuth();
   const { location, changeLocation } = useLocationContext();
-  const { theme, toggleTheme } = useThemeContext();
+  const { theme } = useThemeContext();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
@@ -158,9 +158,7 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
-            <button className="p-1.5 md:p-2 rounded-full hover:bg-bms-surface-hover text-bms-text transition-colors duration-200" onClick={toggleTheme} title="Toggle Dark Mode">
-              {theme === "light" ? <FaMoon size={18} /> : <FaSun size={18} />}
-            </button>
+
 
             <button className="hidden md:flex items-center gap-1.5 text-sm text-bms-text hover:text-bms-accent font-medium bg-transparent border-none cursor-pointer transition-colors duration-200" onClick={() => setLocationModalOpen(true)}>
               {location} 
