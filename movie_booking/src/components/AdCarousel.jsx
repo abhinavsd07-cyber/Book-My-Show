@@ -145,8 +145,8 @@ export default function AdCarousel({
     >
       {/* ── Clip window ── */}
       <div
-        className="w-full overflow-hidden"
-        style={height ? { height } : { aspectRatio: "1440 / 310" }}
+        className={`w-full overflow-hidden ${!height ? "aspect-[16/8] sm:aspect-[21/9] md:aspect-[1440/310]" : ""}`}
+        style={height ? { height } : {}}
         onTouchStart={(e) => onDown(e.touches[0].clientX)}
         onTouchEnd={(e)   => onUp(e.changedTouches[0].clientX)}
         onMouseDown={(e)  => onDown(e.clientX)}
