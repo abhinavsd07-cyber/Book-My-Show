@@ -383,8 +383,10 @@ export default function Dashboard() {
 
       {/* ── Bento KPI cards ───────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {statCards.map(({ label, value, icon: Icon, accentColor, gradient, borderGlow, trend }) => (
-          <div
+        {statCards.map(({ label, value, icon: Icon, accentColor, trend }) => {
+          // eslint-disable-next-line no-unused-vars
+          return (
+            <div
             key={label}
             className={`bg-bms-surface border border-bms-border/50 rounded-3xl p-5 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col gap-3 relative overflow-hidden group`}
             style={{
@@ -422,7 +424,8 @@ export default function Dashboard() {
               <p className="text-[10px] font-extrabold uppercase tracking-wider text-bms-text-dim mt-2">{label}</p>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* ── Quick insights Bento widgets ──────────────────────────────── */}
@@ -450,7 +453,7 @@ export default function Dashboard() {
             icon: LuUsers,
             accentColor: "#6366F1",
           },
-        ].map(({ label, value, sub, icon: Icon, accentColor, green }) => (
+        ].map(({ label, value, sub, accentColor, green }) => (
           <div
             key={label}
             className="bg-bms-surface border border-bms-border/50 rounded-3xl p-5 shadow-xs flex items-center justify-between gap-4 transition-all duration-300 hover:scale-[1.01] hover:shadow-md"

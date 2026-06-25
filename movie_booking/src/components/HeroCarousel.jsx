@@ -33,6 +33,62 @@ const slides = [
   },
 ];
 
+const BannerCard = ({ slide, activeCard }) => {
+  return (
+    <div
+      className={`
+        rounded-xl overflow-hidden shadow-lg shrink-0
+        transition-all duration-500 ease-in-out flex flex-col-reverse md:flex-row
+        ${slide.bg}
+        ${activeCard ? "w-full max-w-[850px] h-auto md:h-[260px] opacity-100" : "hidden md:flex w-[280px] h-[260px] opacity-60"}
+      `}
+    >
+      {/* Left Side: Content Box */}
+      <div className="w-full md:w-[52%] md:min-w-[280px] px-6 md:px-8 py-6 flex flex-col justify-center text-white transition-all duration-500">
+        <h2
+          className={`font-bold leading-tight transition-all duration-500 line-clamp-2 ${
+            activeCard ? "text-[32px]" : "text-[20px]"
+          }`}
+        >
+          {slide.title}
+        </h2>
+
+        <p
+          className={`mt-3 line-clamp-2 transition-all duration-500 text-gray-200 ${
+            activeCard ? "text-[16px]" : "text-[14px]"
+          }`}
+        >
+          {slide.description}
+        </p>
+
+        {activeCard && (
+          <div className="mt-4 flex items-center gap-5 animate-fadeIn">
+            <a href="#" className="text-[15px] underline hover:text-gray-300 transition-colors">
+              Know More
+            </a>
+            <button className="bg-white text-[#e8293c] px-5 py-2 rounded-md font-medium text-[14px] hover:bg-gray-100 transition-colors">
+              Contact us today
+            </button>
+          </div>
+        )}
+      </div>
+
+        {/* Right Side: Image Box (Always rendered, animated via opacity & scale) */}
+        <div 
+          className={`w-full md:w-[48%] h-[160px] md:h-full overflow-hidden transition-all duration-500 origin-right ${
+            activeCard ? "opacity-100 scale-100" : "opacity-0 scale-95 md:w-0"
+          }`}
+        >
+          <img
+            src={slide.image}
+            alt={slide.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+    </div>
+  );
+};
+
 export default function HeroCarousel() {
   const [active, setActive] = useState(0);
 
@@ -54,62 +110,6 @@ export default function HeroCarousel() {
 
   const prevIndex = active === 0 ? slides.length - 1 : active - 1;
   const nextIndex = active === slides.length - 1 ? 0 : active + 1;
-
-  const BannerCard = ({ slide, activeCard }) => {
-    return (
-      <div
-        className={`
-          rounded-xl overflow-hidden shadow-lg shrink-0
-          transition-all duration-500 ease-in-out flex flex-col-reverse md:flex-row
-          ${slide.bg}
-          ${activeCard ? "w-full max-w-[850px] h-auto md:h-[260px] opacity-100" : "hidden md:flex w-[280px] h-[260px] opacity-60"}
-        `}
-      >
-        {/* Left Side: Content Box */}
-        <div className="w-full md:w-[52%] md:min-w-[280px] px-6 md:px-8 py-6 flex flex-col justify-center text-white transition-all duration-500">
-          <h2
-            className={`font-bold leading-tight transition-all duration-500 line-clamp-2 ${
-              activeCard ? "text-[32px]" : "text-[20px]"
-            }`}
-          >
-            {slide.title}
-          </h2>
-
-          <p
-            className={`mt-3 line-clamp-2 transition-all duration-500 text-gray-200 ${
-              activeCard ? "text-[16px]" : "text-[14px]"
-            }`}
-          >
-            {slide.description}
-          </p>
-
-          {activeCard && (
-            <div className="mt-4 flex items-center gap-5 animate-fadeIn">
-              <a href="#" className="text-[15px] underline hover:text-gray-300 transition-colors">
-                Know More
-              </a>
-              <button className="bg-white text-[#e8293c] px-5 py-2 rounded-md font-medium text-[14px] hover:bg-gray-100 transition-colors">
-                Contact us today
-              </button>
-            </div>
-          )}
-        </div>
-
-          {/* Right Side: Image Box (Always rendered, animated via opacity & scale) */}
-          <div 
-            className={`w-full md:w-[48%] h-[160px] md:h-full overflow-hidden transition-all duration-500 origin-right ${
-              activeCard ? "opacity-100 scale-100" : "opacity-0 scale-95 md:w-0"
-            }`}
-          >
-            <img
-              src={slide.image}
-              alt={slide.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-      </div>
-    );
-  };
 
   return (
     <section className="bg-[#f1f2f4] py-6 md:py-10 overflow-hidden w-full select-none">

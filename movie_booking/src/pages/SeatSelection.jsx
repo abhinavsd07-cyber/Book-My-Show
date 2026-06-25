@@ -63,7 +63,8 @@ export default function SeatSelection() {
       .catch(() => navigate("/"))
       .finally(() => setLoading(false));
 
-    const socket = io(import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace("/api", "") : "http://localhost:5000", {
+    const socketUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace("/api", "") : (import.meta.env.PROD ? "/" : "http://localhost:5000");
+    const socket = io(socketUrl, {
       withCredentials: true
     });
     socketRef.current = socket;

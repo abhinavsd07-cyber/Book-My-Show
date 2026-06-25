@@ -53,7 +53,7 @@ export default function MovieDetails() {
         setMovie({ ...movie, interestCount: res.data.interestCount, interestedUsers: res.data.isInterested ? [...(movie.interestedUsers || []), user._id] : (movie.interestedUsers || []).filter(id => id !== user._id) });
         toast.success(res.data.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update interest");
     }
   };

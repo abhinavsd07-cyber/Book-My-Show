@@ -93,7 +93,6 @@ export default function Explore() {
   }, [debouncedSearch, itemType, selectedGenre, selectedLanguage, location]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     fetchMovies();
   }, [fetchMovies]);
 
@@ -243,10 +242,10 @@ export default function Explore() {
                     {/* cineBook Rating Tag (Mocked) */}
                     <div className="absolute bottom-0 left-0 right-0 bg-[#000000e6] text-white p-2 flex justify-between items-center z-10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                       <div className="flex items-center gap-1.5 text-[13px] font-bold">
-                        <span className="text-[#F84464]">♥</span> {Math.floor(Math.random() * 30 + 70)}%
+                        <span className="text-[#F84464]">♥</span> {Math.floor(((m._id ? m._id.charCodeAt(0) : 0) % 30) + 70)}%
                       </div>
                       <div className="text-[10px] font-medium text-[#cccccc] uppercase">
-                        {(Math.random() * 50 + 10).toFixed(1)}k Votes
+                        {(((m._id ? m._id.charCodeAt(m._id.length - 1) : 0) % 50) + 10).toFixed(1)}k Votes
                       </div>
                     </div>
                   </div>

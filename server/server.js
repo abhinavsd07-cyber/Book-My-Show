@@ -1,6 +1,13 @@
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Global Error Handlers to prevent silent crashes
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  console.error(err.name, err.message, err.stack);
+  process.exit(1);
+});
+
 // Fix for Node.js DNS resolution issues on Windows (ECONNREFUSED for SRV queries)
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
@@ -9,6 +16,9 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const mongoSanitize = require("express-mongo-sanitize");
 const connectDB = require("./dbConfig/db");
 const route = require("./routes/route");
 const adminRoutes = require("./routes/adminRoutes");
@@ -81,6 +91,9 @@ io.on("connection", (socket) => {
 });
 
 // Middleware
+app.use(helmet());
+app.use(compression());
+app.use(mongoSanitize());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -101,4 +114,19 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION! 💥 Shutting down...");
+  console.error(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+process.on("SIGTERM", () => {
+  console.log("👋 SIGTERM RECEIVED. Shutting down gracefully");
+  server.close(() => {
+    console.log("💥 Process terminated!");
+  });
 });

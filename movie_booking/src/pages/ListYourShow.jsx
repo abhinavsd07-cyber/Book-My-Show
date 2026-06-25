@@ -1,5 +1,5 @@
 import SEO from "../components/SEO";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import HeroCarousel from "../components/HeroCarousel"
 // ─── SVG ICONS ───────────────────────────────────────────────────────────────
 const GuitarIcon = () => (
@@ -159,17 +159,9 @@ const ShieldIcon = () => (
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function ListYourShow() {
-  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((s) => (s + 1) % 5);
-    }, 3500);
-    return () => clearInterval(timer);
   }, []);
 
   const hostItems = [

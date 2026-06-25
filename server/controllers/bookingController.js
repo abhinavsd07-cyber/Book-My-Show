@@ -250,6 +250,10 @@ const cancelBooking = async (req, res) => {
         });
       } catch (stripeError) {
         console.error("Stripe refund failed or already processed:", stripeError.message);
+        return res.status(500).json({ 
+          success: false, 
+          message: `Stripe refund failed: ${stripeError.message}` 
+        });
       }
     }
 

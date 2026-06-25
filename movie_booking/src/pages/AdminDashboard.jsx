@@ -11,7 +11,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     // We will use our new /api/admin/analytics endpoint.
     // Assuming admin auth is handled or bypassed for prototype.
     const fetchAnalytics = async () => {

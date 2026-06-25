@@ -40,6 +40,7 @@ export default function AdminLayout() {
   const [mini, setMini] = useState(false);
 
   /* close mobile drawer on navigation */
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -59,7 +60,6 @@ export default function AdminLayout() {
   };
 
   /* sidebar is "visible" when: desktop (always) OR mobile + drawer open */
-  const sidebarVisible = !isMobile() || mobileOpen;
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800">
@@ -142,6 +142,7 @@ export default function AdminLayout() {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-2 flex flex-col gap-0.5">
           {NAV_ITEMS.map(({ path, icon: Icon, label }) => {
+            // eslint-disable-next-line no-unused-vars
             const active = location.pathname === path;
             return (
               <Link

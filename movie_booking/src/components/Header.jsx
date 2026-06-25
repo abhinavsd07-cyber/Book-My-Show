@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLocationContext } from "../context/LocationContext";
-import { useThemeContext } from "../context/ThemeContext";
+
 import { getAllMovies } from "../config/allApis";
 import { FaLandmark, FaCity, FaIndustry, FaTree, FaMonument, FaArchway, FaMosque, FaDharmachakra, FaMoon, FaSun } from "react-icons/fa";
 import { LuCrosshair, LuBuilding2 } from "react-icons/lu";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const POPULAR_CITIES = [
   { name: "Mumbai", icon: <FaLandmark size={24} className="text-bms-accent" /> },
   { name: "Delhi-NCR", icon: <FaMonument size={24} className="text-bms-accent" /> },
@@ -23,7 +24,6 @@ export const POPULAR_CITIES = [
 const Header = () => {
   const { user, logout } = useAuth();
   const { location, changeLocation } = useLocationContext();
-  const { theme } = useThemeContext();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
