@@ -80,8 +80,9 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 w-full z-[1000] bg-bms-surface/95 dark:bg-bms-surface/85 backdrop-blur-md border-b border-bms-border shadow-sm transition-all duration-300">
-      {/* Top Main Bar */}
+    <>
+      <header className="fixed top-0 left-0 w-full z-[1000] bg-bms-surface/95 dark:bg-bms-surface/85 backdrop-blur-md border-b border-bms-border shadow-sm transition-all duration-300">
+        {/* Top Main Bar */}
       <div className="py-2.5 md:py-3 border-b border-bms-border/50">
         <div className="container flex justify-between items-center px-4">
           <div className="flex items-center gap-4 md:gap-6 flex-1">
@@ -170,7 +171,11 @@ const Header = () => {
                 <button className="flex items-center gap-2 font-medium text-bms-text hover:text-bms-accent text-sm bg-transparent border-none cursor-pointer transition-colors duration-200" onClick={() => setUserMenuOpen(!userMenuOpen)}>
                   {user.avatar ? (
                     <img src={user.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-bms-border object-cover" />
-                  ) : null}
+                  ) : (
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-bms-accent flex items-center justify-center text-white font-bold text-xs uppercase">
+                      {user.name.charAt(0)}
+                    </div>
+                  )}
                   <span className="hidden sm:inline">Hi, {user.name.split(" ")[0]}</span>
                 </button>
                 {userMenuOpen && (
@@ -249,6 +254,7 @@ const Header = () => {
           </nav>
         </div>
       </div>
+      </header>
 
       {/* Location Modal */}
       {locationModalOpen && (
@@ -294,6 +300,23 @@ const Header = () => {
                 <h3 className="text-lg font-bold text-bms-text">Menu</h3>
                 <button className="w-8 h-8 rounded-full bg-bms-surface border border-bms-border hover:bg-bms-surface-active text-bms-text flex items-center justify-center transition-colors duration-150" onClick={() => setMobileMenuOpen(false)}>✕</button>
               </div>
+              
+              {user && (
+                <div className="flex items-center gap-3 mb-4 p-3 bg-bms-surface border border-bms-border rounded-lg shadow-sm">
+                  {user.avatar ? (
+                    <img src={user.avatar} className="w-10 h-10 rounded-full object-cover border border-bms-border" alt="Avatar" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-bms-accent flex items-center justify-center text-white font-bold text-lg uppercase">
+                      {user.name.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 overflow-hidden">
+                    <p className="font-bold text-bms-text text-sm truncate">{user.name}</p>
+                    <p className="text-xs text-bms-text-muted truncate">{user.email}</p>
+                  </div>
+                </div>
+              )}
+
               <button className="w-full flex items-center justify-between text-sm text-bms-text hover:text-bms-accent font-medium bg-bms-surface border border-bms-border p-3 rounded-lg cursor-pointer transition-colors duration-200" onClick={() => { setMobileMenuOpen(false); setLocationModalOpen(true); }}>
                 <div className="flex items-center gap-2">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-bms-accent"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -304,6 +327,22 @@ const Header = () => {
             </div>
             
             <div className="flex-1 overflow-y-auto p-3">
+              {user && (
+                <div className="mb-4 border-b border-bms-border/50 pb-4">
+                  <p className="text-xs font-bold text-bms-text-muted uppercase tracking-wider px-3 mb-2 mt-2">My Account</p>
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block py-3 px-3 rounded-lg text-bms-text hover:bg-bms-surface-hover hover:text-bms-accent font-medium transition-colors duration-150">
+                    My Profile
+                  </Link>
+                  <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)} className="block py-3 px-3 rounded-lg text-bms-text hover:bg-bms-surface-hover hover:text-bms-accent font-medium transition-colors duration-150">
+                    Your Orders
+                  </Link>
+                  {user.role === "admin" && (
+                    <Link to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="block py-3 px-3 rounded-lg text-bms-text hover:bg-bms-surface-hover hover:text-bms-accent font-medium transition-colors duration-150">
+                      Admin Panel
+                    </Link>
+                  )}
+                </div>
+              )}
               <div className="mb-4">
                 <p className="text-xs font-bold text-bms-text-muted uppercase tracking-wider px-3 mb-2 mt-2">Explore</p>
                 {navLinksMain.map((link) => (
@@ -334,7 +373,7 @@ const Header = () => {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
 

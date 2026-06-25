@@ -241,72 +241,89 @@ END:VCALENDAR`;
 
         {/* Hidden Ticket Clone for PDF Generation (Fixed size 580px) */}
         <div style={{ position: "absolute", left: "-9999px", top: 0, width: "580px", pointerEvents: "none" }}>
-          <div ref={ticketRef} className="flex bg-[#11131e] text-slate-300 border border-slate-800/80 p-6 relative text-left" style={{ width: "580px" }}>
+          <div 
+            ref={ticketRef} 
+            style={{ 
+              display: "flex", 
+              color: "#cbd5e1", 
+              border: "1px solid rgba(30, 41, 59, 0.8)", 
+              padding: "24px", 
+              position: "relative", 
+              backgroundColor: "#11131e", 
+              textAlign: "left",
+              width: "580px", 
+              fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" 
+            }}
+          >
             {/* Ticket Left (Movie Info) */}
-            <div className="w-[43%] pr-6 flex flex-col gap-4 relative">
-              <div className="text-[12px] font-bold uppercase tracking-widest text-[#F84464] flex items-center gap-1.5 font-sans">
-                <LuTicket size={16} className="fill-[#F84464]/20" /> CINEBOOK
+            <div style={{ width: "43%", paddingRight: "24px", display: "flex", flexDirection: "column", gap: "16px", position: "relative" }}>
+              <div style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em", color: "#F84464", display: "flex", alignItems: "center", gap: "6px" }}>
+                <LuTicket size={16} color="#F84464" /> CINEBOOK
               </div>
 
-              <img src={movie?.poster ? `${BASE_URL}/proxy-image?url=${encodeURIComponent(movie.poster)}` : ""} alt={movie?.title} className="pdf-poster-img w-full aspect-[2/3] object-cover rounded-xl shadow-md border border-slate-800/40" crossOrigin="anonymous" />
+              <img src={movie?.poster ? `${BASE_URL}/proxy-image?url=${encodeURIComponent(movie.poster)}` : ""} alt={movie?.title} className="pdf-poster-img" style={{ width: "100%", aspectRatio: "2/3", objectFit: "cover", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)", border: "1px solid rgba(30, 41, 59, 0.4)" }} crossOrigin="anonymous" />
 
-              <div className="flex flex-col gap-2">
-                <h2 className="text-sm font-extrabold text-white line-clamp-2 leading-snug tracking-wide">{movie?.title}</h2>
-                <div className="flex flex-wrap gap-1.5">
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <h2 style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff", margin: 0 }}>{movie?.title}</h2>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {movie?.genre?.slice(0, 2).map((g) => (
-                    <span key={g} className="bg-[#1d1d35] border border-[#3c3e66] text-[#9fa4fc] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{g}</span>
+                    <span key={g} style={{ backgroundColor: "#1d1d35", border: "1px solid #3c3e66", color: "#9fa4fc", padding: "2px 10px", fontSize: "8px", fontWeight: "bold", textTransform: "uppercase", borderRadius: "6px", letterSpacing: "0.05em" }}>{g}</span>
                   ))}
-                  {show?.format && <span className="bg-[#4F46E5]/20 border border-[#4F46E5]/40 text-[#818CF8] px-2.5 py-0.5 text-[8px] font-bold uppercase rounded-md tracking-wider">{show.format}</span>}
+                  {show?.format && (
+                    <span style={{ backgroundColor: "rgba(79, 70, 229, 0.2)", border: "1px solid rgba(79, 70, 229, 0.4)", color: "#818CF8", padding: "2px 10px", fontSize: "8px", fontWeight: "bold", textTransform: "uppercase", borderRadius: "6px", letterSpacing: "0.05em" }}>
+                      {show.format}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Perforated Vertical Divider */}
-            <div className="border-r border-dashed border-slate-800 my-1 relative">
+            <div style={{ borderRight: "1px dashed #1e293b", margin: "4px 0", position: "relative" }}>
               {/* Top notch */}
-              <div className="absolute -top-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
+              <div style={{ position: "absolute", top: "-29px", right: "-9px", width: "16px", height: "16px", backgroundColor: "#12121E", borderRadius: "50%", border: "1px solid #1e293b" }}></div>
               {/* Bottom notch */}
-              <div className="absolute -bottom-[29px] -right-[9px] w-4 h-4 bg-[#12121E] rounded-full border border-slate-800"></div>
+              <div style={{ position: "absolute", bottom: "-29px", right: "-9px", width: "16px", height: "16px", backgroundColor: "#12121E", borderRadius: "50%", border: "1px solid #1e293b" }}></div>
             </div>
 
             {/* Ticket Right (Details) */}
-            <div className="flex-1 pl-6 flex flex-col justify-between gap-4">
+            <div style={{ flex: 1, paddingLeft: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px" }}>
               {isPremiere ? (
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Access</span>
-                    <span className="text-xs font-bold text-white">Lifetime Rental</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: "bold" }}>Access</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>Lifetime Rental</span>
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date Purchased</span>
-                    <span className="text-xs font-bold text-white">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: "bold" }}>Date Purchased</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">THEATRE</span>
-                    <span className="text-xs font-bold text-white truncate max-w-[150px]">{theatre?.name}</span>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "16px", rowGap: "14px", textAlign: "left" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", fontWeight: "bold" }}>THEATRE</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "150px" }}>{theatre?.name}</span>
                   </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SCREEN</span>
-                    <span className="text-xs font-bold text-white">{show?.screen || "Screen 1"}</span>
-                  </div>
-
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">DATE</span>
-                    <span className="text-xs font-bold text-white">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">TIME</span>
-                    <span className="text-xs font-bold text-white">{show?.time}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", fontWeight: "bold" }}>SCREEN</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>{show?.screen || "Screen 1"}</span>
                   </div>
 
-                  <div className="col-span-2 flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">SEATS</span>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", fontWeight: "bold" }}>DATE</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", fontWeight: "bold" }}>TIME</span>
+                    <span style={{ fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>{show?.time}</span>
+                  </div>
+
+                  <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b", fontWeight: "bold" }}>SEATS</span>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                       {booking.seats?.map((s) => (
-                        <span key={s.seatNumber} className="px-2.5 py-0.5 bg-[#1d1d35] border border-[#3c3e66] text-white font-mono font-bold text-[9px] rounded-md tracking-wider uppercase">
+                        <span key={s.seatNumber} style={{ padding: "2px 10px", backgroundColor: "#1d1d35", border: "1px solid #3c3e66", color: "#ffffff", fontFamily: "monospace", fontWeight: "bold", fontSize: "9px", borderRadius: "6px", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                           {s.seatNumber}
                         </span>
                       ))}
@@ -315,35 +332,35 @@ END:VCALENDAR`;
                 </div>
               )}
 
-              <div className="border-t border-[#2b2d42] pt-3 mt-1 flex justify-between items-center">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">AMOUNT PAID</span>
-                <span className="text-2xl font-extrabold text-[#F84464]">₹{booking.grandTotal}</span>
+              <div style={{ borderTop: "1px solid #2b2d42", paddingTop: "12px", marginTop: "4px", display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "left" }}>
+                <span style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", fontWeight: "bold" }}>AMOUNT PAID</span>
+                <span style={{ fontSize: "24px", fontWeight: "800", color: "#F84464", margin: 0 }}>₹{booking.grandTotal}</span>
               </div>
               
               {/* Tax breakdown */}
               {booking.grandTotal > 0 && (
-                <div className="border-t border-[#2b2d42] pt-2 mt-1 flex flex-col gap-1">
-                  <div className="flex justify-between items-center text-[9px]">
-                    <span className="text-slate-500 font-medium">CGST (9%)</span>
-                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                <div style={{ borderTop: "1px solid #2b2d42", paddingTop: "8px", marginTop: "4px", display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "9px" }}>
+                    <span style={{ color: "#64748b", fontWeight: "500" }}>CGST (9%)</span>
+                    <span style={{ color: "#94a3b8", fontWeight: "600" }}>₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[9px]">
-                    <span className="text-slate-500 font-medium">SGST (9%)</span>
-                    <span className="text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "9px" }}>
+                    <span style={{ color: "#64748b", fontWeight: "500" }}>SGST (9%)</span>
+                    <span style={{ color: "#94a3b8", fontWeight: "600" }}>₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-[#2b2d42] pt-1.5 mt-0.5 text-[9px]">
-                    <span className="text-slate-400 font-bold">TOTAL GST (18%)</span>
-                    <span className="text-slate-300 font-bold">₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #2b2d42", paddingTop: "6px", marginTop: "2px", fontSize: "9px" }}>
+                    <span style={{ color: "#94a3b8", fontWeight: "bold" }}>TOTAL GST (18%)</span>
+                    <span style={{ color: "#cbd5e1", fontWeight: "bold" }}>₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
                   </div>
                 </div>
               )}
 
               {/* QR Code */}
-              <div className="flex flex-col items-center gap-1.5 mt-1 pt-3 border-t border-[#2b2d42]/50">
-                <div className="bg-white p-2 rounded-xl shadow-md inline-block">
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", marginTop: "4px", paddingTop: "12px", borderTop: "1px solid rgba(43, 45, 66, 0.5)" }}>
+                <div style={{ backgroundColor: "#ffffff", padding: "8px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)", display: "inline-block" }}>
                   <QRCodeCanvas value={booking.bookingId} size={90} level="H" />
                 </div>
-                <span className="text-[9px] text-slate-400 font-mono font-bold tracking-wider uppercase">{booking.bookingId}</span>
+                <span style={{ fontSize: "9px", color: "#94a3b8", fontFamily: "monospace", fontWeight: "bold", letterSpacing: "0.05em", textTransform: "uppercase" }}>{booking.bookingId}</span>
               </div>
             </div>
           </div>
