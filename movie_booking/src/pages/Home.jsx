@@ -98,10 +98,12 @@ export default function Home() {
                       loading="lazy" 
                     />
                     {m.rating > 0 && (
-                      <div className="absolute bottom-0 left-0 w-full glass text-white text-[12px] md:text-[14px] font-semibold py-2 px-3 flex items-center gap-1">
-                        <span className="text-[#F84464] text-lg leading-none">★</span> 
-                        <span>{m.rating.toFixed(1)}/10</span>
-                        <span className="text-white/80 font-normal text-[11px] ml-auto">50K+ Votes</span>
+                      <div className="absolute bottom-0 left-0 w-full bg-black/90 text-white text-[11px] md:text-[12px] font-medium py-1.5 px-2.5 flex items-center justify-between z-10">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#F84464] text-[14px]">★</span>
+                          <span>{m.rating.toFixed(1)}/10</span>
+                        </div>
+                        <span className="text-white/70">50K+ Votes</span>
                       </div>
                     )}
                   </div>

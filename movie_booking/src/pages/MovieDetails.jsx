@@ -149,7 +149,7 @@ export default function MovieDetails() {
             <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
             
             {movie.trailer && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass text-white text-[12px] md:text-[14px] font-semibold px-5 py-2 rounded-full flex items-center gap-2 border border-white/20 shadow-premium group-hover:bg-[#F84464] transition-all duration-300">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-md text-white text-[12px] md:text-[14px] font-semibold px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xl group-hover:bg-[#F84464] transition-all duration-300 border border-white/10">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
@@ -157,20 +157,26 @@ export default function MovieDetails() {
               </div>
             )}
 
-            {movie.isNowShowing ? (
-              <div className="absolute bottom-0 left-0 w-full glass text-[12px] font-bold uppercase text-center tracking-[0.2em] text-white py-2 z-10">In cinemas</div>
-            ) : movie.isUpcoming ? (
+            {movie.isUpcoming ? (
               <div className="absolute bottom-0 left-0 w-full bg-black/80 px-4 py-3 text-[13px] font-semibold text-center text-white z-10">
                 Releasing on {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBA"}
               </div>
-            ) : null}
+            ) : (
+              <div className="absolute bottom-0 left-0 w-full bg-black/90 px-3 py-2 flex justify-between items-center z-10">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[#F84464] text-[16px]">★</span>
+                  <span className="text-white font-bold text-[14px]">{movie.rating?.toFixed(1) || 0}/10</span>
+                </div>
+                <span className="text-white/70 text-[12px] font-medium">{formatCount(reviews?.length)} Votes</span>
+              </div>
+            )}
           </div>
           
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center w-full">
             <h1 className="text-3xl sm:text-4xl md:text-[42px] font-extrabold text-white leading-tight drop-shadow-lg">{movie.title}</h1>
             
             {movie.isUpcoming ? (
-              <div className="glass rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-6 w-full max-w-[500px] mt-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 w-full max-w-[500px] mt-6">
                 <div className="flex items-start gap-3">
                   <span className="text-[#4caf50] text-2xl mt-0.5"><LuThumbsUp className="fill-current" /></span>
                   <div className="flex flex-col text-left">
@@ -187,20 +193,20 @@ export default function MovieDetails() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-4 glass px-5 py-3 rounded-2xl w-fit flex-wrap justify-center shadow-premium mt-6">
+              <div className="flex items-center gap-4 mt-6">
                 <span className="text-[#F84464] text-2xl drop-shadow-md">★</span>
                 <span className="text-[20px] md:text-[24px] font-extrabold text-white">{movie.rating?.toFixed(1) || 0}/10</span>
                 <span className="text-[14px] text-slate-200 font-semibold ml-2">{reviews?.length || 0} Ratings &rsaquo;</span>
-                <button className="bg-white text-[#F84464] hover:bg-slate-100 font-bold px-5 py-2.5 text-[13px] rounded-xl transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
+                <button className="bg-white text-slate-900 hover:bg-slate-200 font-bold px-5 py-2.5 text-[13px] rounded-xl transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
               </div>
             )}
 
             <div className="flex flex-wrap gap-3 justify-center md:justify-start mt-6">
               <span className="bg-white text-slate-900 px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">2D, 3D, IMAX</span>
               {Array.isArray(movie.language) ? (
-                 movie.language.map((lang, idx) => <span key={idx} className="glass text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{lang}</span>)
+                 movie.language.map((lang, idx) => <span key={idx} className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{lang}</span>)
               ) : (
-                <span className="glass text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{movie.language}</span>
+                <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{movie.language}</span>
               )}
             </div>
 
@@ -210,7 +216,7 @@ export default function MovieDetails() {
 
             <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-4 mt-8 items-center justify-center md:justify-start">
               {movie.itemType === "premiere" ? (
-                <div className="fixed bottom-0 left-0 w-full p-4 glass z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto flex flex-col sm:flex-row gap-3">
+                <div className="fixed bottom-0 left-0 w-full p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto flex flex-col sm:flex-row gap-3">
                   <button
                     className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-10 py-3.5 text-[16px] font-bold rounded-xl shadow-premium transition-transform hover:scale-105"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: movie.basePrice || 149 } })}
@@ -218,14 +224,14 @@ export default function MovieDetails() {
                     Rent for ₹ {movie.basePrice || 149}
                   </button>
                   <button
-                    className="w-full sm:w-auto glass hover:bg-white/20 text-white px-10 py-3.5 text-[16px] font-bold rounded-xl transition-all shadow-sm"
+                    className="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white px-10 py-3.5 text-[16px] font-bold rounded-xl transition-all shadow-sm"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: (movie.basePrice || 149) + 400 } })}
                   >
                     Buy for ₹ {(movie.basePrice || 149) + 400}
                   </button>
                 </div>
               ) : movie.isNowShowing ? (
-                <div className="fixed bottom-0 left-0 w-full p-4 glass z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto">
+                <div className="fixed bottom-0 left-0 w-full p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto">
                   <button
                     className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-14 py-4 text-[16px] font-bold rounded-xl shadow-premium transition-transform hover:scale-105"
                     onClick={() => navigate(`/select-theatre/${movie._id}`)}
@@ -236,7 +242,7 @@ export default function MovieDetails() {
               ) : null}
 
               <button
-                className="w-full sm:w-auto glass hover:bg-white/20 text-white px-5 py-4 text-[16px] font-bold transition-all flex items-center justify-center gap-2 rounded-xl shadow-sm"
+                className="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white px-5 py-4 text-[16px] font-bold transition-all flex items-center justify-center gap-2 rounded-xl shadow-sm"
                 onClick={handleShare}
                 title="Share"
               >
